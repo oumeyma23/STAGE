@@ -30,7 +30,13 @@ def is_similar(input_name, target_name):
 
     print(f"🧪 Comparaison : '{input_proc}' vs '{target_proc}' | Jaro: {jaro:.3f} | Levenshtein: {levenshtein} | Soundex: {soundex_match}")
 
-    return jaro > 0.88 or levenshtein < 4 or soundex_match
+    # Critères plus stricts pour éviter les faux positifs
+    is_match = jaro > 0.90 or levenshtein < 3 or soundex_match
+    
+    if is_match:
+        print(f"✅ MATCH trouvé: Jaro={jaro:.3f} | Levenshtein={levenshtein} | Soundex={soundex_match}")
+    
+    return is_match
 
 # 📂 Chargement de la base AML et vérification du nom
 def check_name(input_name):
@@ -59,6 +65,13 @@ if __name__ == "__main__":
 
     if not result.empty:
         print("\n🚨 Ce nom correspond à une personne sur liste rouge !")
-        print(result[['Full Name', 'Risk Category', 'Source', 'Risk Type', 'Notes']])
+        # Afficher toutes les colonnes disponibles
+        print("Colonnes disponibles:", result.columns.tolist())
+        # Afficher seulement les colonnes qui existent
+        available_cols = ['Full Name']
+        for col in ['Risk Category', 'Source', 'Risk Type', 'Notes']:
+            if col in result.columns:
+                available_cols.append(col)
+        print(result[available_cols])
     else:
         print("\n✅ Aucun match trouvé.")
