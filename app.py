@@ -50,15 +50,34 @@ def envoyer_mail(destinataire, nom_complet):
     msg.attach(MIMEText(body, 'plain'))
 
     try:
+        print(f"🔗 Connexion au serveur SMTP {SMTP_CONFIG['server']}:{SMTP_CONFIG['port']}")
         server = smtplib.SMTP(SMTP_CONFIG['server'], SMTP_CONFIG['port'])
+        server.set_debuglevel(1)  # Active le debug SMTP
+        
         if SMTP_CONFIG['use_tls']:
+            print("🔐 Activation TLS...")
             server.starttls()
+        
+        print(f"🔑 Authentification avec {SMTP_CONFIG['email']}")
         server.login(SMTP_CONFIG['email'], SMTP_CONFIG['password'])
+        
+        print(f"📤 Envoi email vers {destinataire}")
         server.sendmail(SMTP_CONFIG['email'], destinataire, msg.as_string())
         server.quit()
         print("📨 Email envoyé avec succès.")
+        return True
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"❌ Erreur d'authentification SMTP: {e}")
+        return False
+    except smtplib.SMTPRecipientsRefused as e:
+        print(f"❌ Destinataire refusé: {e}")
+        return False
+    except smtplib.SMTPServerDisconnected as e:
+        print(f"❌ Serveur SMTP déconnecté: {e}")
+        return False
     except Exception as e:
-        print("❌ Erreur d'envoi de mail :", e)
+        print(f"❌ Erreur d'envoi de mail: {type(e).__name__}: {e}")
+        return False
 
 def envoyer_mail_inscription_refusee(destinataire, nom_complet):
     """Envoie un email d'avertissement lors de l'inscription pour liste rouge"""
@@ -85,16 +104,33 @@ def envoyer_mail_inscription_refusee(destinataire, nom_complet):
     msg.attach(MIMEText(body, 'plain'))
 
     try:
+        print(f"🔗 Connexion au serveur SMTP {SMTP_CONFIG['server']}:{SMTP_CONFIG['port']}")
         server = smtplib.SMTP(SMTP_CONFIG['server'], SMTP_CONFIG['port'])
+        server.set_debuglevel(1)  # Active le debug SMTP
+        
         if SMTP_CONFIG['use_tls']:
+            print("🔐 Activation TLS...")
             server.starttls()
+        
+        print(f"🔑 Authentification avec {SMTP_CONFIG['email']}")
         server.login(SMTP_CONFIG['email'], SMTP_CONFIG['password'])
+        
+        print(f"📤 Envoi email d'inscription vers {destinataire}")
         server.sendmail(SMTP_CONFIG['email'], destinataire, msg.as_string())
         server.quit()
         print("📨 Email d'avertissement d'inscription envoyé avec succès.")
         return True
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"❌ Erreur d'authentification SMTP: {e}")
+        return False
+    except smtplib.SMTPRecipientsRefused as e:
+        print(f"❌ Destinataire refusé: {e}")
+        return False
+    except smtplib.SMTPServerDisconnected as e:
+        print(f"❌ Serveur SMTP déconnecté: {e}")
+        return False
     except Exception as e:
-        print("❌ Erreur d'envoi de mail d'inscription :", e)
+        print(f"❌ Erreur d'envoi de mail d'inscription: {type(e).__name__}: {e}")
         return False
 
 # 📝 Page d'inscription

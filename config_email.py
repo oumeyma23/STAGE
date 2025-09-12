@@ -3,10 +3,10 @@
 
 # Configuration Zoho Mail
 SMTP_CONFIG = {
-    'server': 'smtp.zoho.com',
+    'server': 'smtp.gmail.com',
     'port': 587,
-    'email': 'hakkaii92@gmail.com',
-    'password': 'zSV2nbLdyXtu',
+    'email': 'oumaimasokkeh@gmail.com',
+    'password': 'ktmw auhv bmmq fnpy',
     'use_tls': True
 }
 
