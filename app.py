@@ -138,7 +138,7 @@ def envoyer_mail_inscription_refusee(destinataire, nom_complet):
 def signup():
     error = None
     if request.method == 'POST':
-        name = request.form['name']
+        name = request.form['fullname']
         email = request.form['email']
         password = request.form['password']
         verifiedpass = request.form['confirm']
@@ -146,18 +146,7 @@ def signup():
         if password != verifiedpass:
             error = "Les mots de passe ne correspondent pas"
         else:
-            # 🔍 Vérification AML lors de l'inscription
-            print(f"🧪 Vérification AML pour l'inscription de : {name}")
-            result = check_name(name)
-            
-            if not result.empty:
-                # Le nom figure sur la liste rouge
-                print(f"🚨 Nom '{name}' trouvé sur liste rouge lors de l'inscription")
-                envoyer_mail_inscription_refusee(email, name)
-                error = "Votre inscription ne peut pas être validée pour des raisons de sécurité. Un email d'information vous a été envoyé."
-                return render_template('signup.html', error=error)
-            
-            # Si le nom n'est pas sur la liste rouge, continuer l'inscription normale
+            # Inscription normale sans vérification AML
             hashed = generate_password_hash(password)
             cur = mysql.connection.cursor()
             cur.execute("SELECT * FROM signup WHERE email = %s", (email,))

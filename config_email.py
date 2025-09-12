@@ -32,6 +32,7 @@ SMTP_CONFIG = {
 
 # Configuration personnalisée (pour autres fournisseurs)
 # SMTP_CONFIG = {
+
 #     'server': 'votre_serveur_smtp.com',
 #     'port': 587,  # ou 465 pour SSL
 #     'email': 'votre_email@domaine.com',
