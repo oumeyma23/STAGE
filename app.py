@@ -1,5 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_mysqldb import MySQL
+try:
+    from flask_babel import Babel, gettext, ngettext, get_locale
+    BABEL_AVAILABLE = True
+except ImportError:
+    BABEL_AVAILABLE = False
 from werkzeug.security import generate_password_hash, check_password_hash
 from extraction import extraire_donnees
 import os
@@ -20,6 +25,25 @@ from config_email import SMTP_CONFIG
 app = Flask(__name__)
 app.secret_key = 'secret_key'
 
+# Configuration Babel
+app.config['LANGUAGES'] = {
+    'en': 'English',
+    'fr': 'Français', 
+    'ar': 'العربية'
+}
+
+def get_locale():
+    # 1. Si l'utilisateur a choisi une langue, l'utiliser
+    if 'language' in session:
+        return session['language']
+    # 2. Sinon, utiliser la langue préférée du navigateur
+    return request.accept_languages.best_match(app.config['LANGUAGES'].keys()) or 'fr'
+
+if BABEL_AVAILABLE:
+    app.config['BABEL_DEFAULT_LOCALE'] = 'fr'
+    app.config['BABEL_DEFAULT_TIMEZONE'] = 'UTC'
+    babel = Babel(app, locale_selector=get_locale)
+
 # 🔗 Connexion à MySQL
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
@@ -30,6 +54,15 @@ mysql = MySQL(app)
 
 UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Route pour changer de langue
+@app.route('/set_language/<language>')
+def set_language(language=None):
+    if language in app.config['LANGUAGES']:
+        session['language'] = language
+        print(f"🌐 Langue changée vers: {language}")
+        print(f"🌐 Session language: {session.get('language')}")
+    return redirect(request.referrer or url_for('accueil'))
 def envoyer_mail(destinataire, nom_complet):
     subject = "Refus de crédit - SecuriBank"
     body = f"""
@@ -79,19 +112,19 @@ def envoyer_mail(destinataire, nom_complet):
         print(f"❌ Erreur d'envoi de mail: {type(e).__name__}: {e}")
         return False
 
-def envoyer_mail_inscription_refusee(destinataire, nom_complet):
-    """Envoie un email d'avertissement lors de l'inscription pour liste rouge"""
-    subject = "Avertissement d'inscription - SecuriBank"
+def envoyer_mail_confirmation_demande(destinataire, nom_complet):
+    """Envoie un email de confirmation d'enregistrement de demande de crédit"""
+    subject = "Confirmation de demande de crédit - SecuriBank"
     body = f"""
     Bonjour {nom_complet},
 
-    Nous vous informons que votre tentative d'inscription sur notre plateforme SecuriBank a été détectée.
+    Nous avons bien reçu votre demande de crédit.
 
-    Votre nom figure sur une liste de surveillance AML (Anti-Money Laundering).
+    Votre dossier est actuellement en cours d'étude par nos équipes.
 
-    Pour des raisons de sécurité et de conformité réglementaire, votre inscription ne peut pas être validée.
+    Nous vous répondrons dans les plus brefs délais concernant la suite à donner à votre demande.
 
-    Si vous pensez qu'il s'agit d'une erreur, veuillez contacter notre service client.
+    En cas de questions, n'hésitez pas à nous contacter.
 
     Cordialement,
     L'équipe SecuriBank
@@ -115,10 +148,10 @@ def envoyer_mail_inscription_refusee(destinataire, nom_complet):
         print(f"🔑 Authentification avec {SMTP_CONFIG['email']}")
         server.login(SMTP_CONFIG['email'], SMTP_CONFIG['password'])
         
-        print(f"📤 Envoi email d'inscription vers {destinataire}")
+        print(f"📤 Envoi email de confirmation vers {destinataire}")
         server.sendmail(SMTP_CONFIG['email'], destinataire, msg.as_string())
         server.quit()
-        print("📨 Email d'avertissement d'inscription envoyé avec succès.")
+        print("📨 Email de confirmation envoyé avec succès.")
         return True
     except smtplib.SMTPAuthenticationError as e:
         print(f"❌ Erreur d'authentification SMTP: {e}")
@@ -130,7 +163,7 @@ def envoyer_mail_inscription_refusee(destinataire, nom_complet):
         print(f"❌ Serveur SMTP déconnecté: {e}")
         return False
     except Exception as e:
-        print(f"❌ Erreur d'envoi de mail d'inscription: {type(e).__name__}: {e}")
+        print(f"❌ Erreur d'envoi de mail de confirmation: {type(e).__name__}: {e}")
         return False
 
 # 📝 Page d'inscription
@@ -176,11 +209,92 @@ def login():
         else:
             error = "Identifiants incorrects"
     return render_template('login.html', error=error)
+# 📝 Formulaire de demande de crédit
+@app.route("/demande_credit", methods=["GET", "POST"])
+def demande_credit():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    success, error = None, None
+
+    if request.method == "POST":
+        try:
+            # Récupération des champs
+            nom = request.form.get("nom")
+            prenom = request.form.get("prenom")
+            date_naissance = request.form.get("date_naissance")
+            lieu_naissance = request.form.get("lieu_naissance")
+            cin = request.form.get("document_id")
+            nationalite = request.form.get("nationalite")
+            adresse = request.form.get("adresse")
+            telephone = request.form.get("telephone")
+            email = request.form.get("email")
+            situation_familiale = request.form.get("situation_familiale")
+            enfants = request.form.get("enfants")
+
+            profession = request.form.get("profession")
+            employeur = request.form.get("employeur")
+            secteur = request.form.get("secteur")
+            type_contrat = request.form.get("type_contrat")
+            anciennete = request.form.get("anciennete")
+            revenu = request.form.get("revenu")
+            autres_revenus = request.form.get("autres_revenus")
+
+            revenu_menage = request.form.get("revenu_menage")
+            depenses = request.form.get("depenses")
+            credits_en_cours = request.form.get("credits_en_cours")
+            compte_banque = request.form.get("compte_banque")
+            epargne = request.form.get("epargne")
+
+            type_credit = request.form.get("type_credit")
+            montant = request.form.get("montant")
+            duree = request.form.get("duree")
+            objet = request.form.get("objet")
+            garanties = request.form.get("garanties")
+            
+            nom_complet = f"{prenom} {nom}"
+
+            # Insertion en base
+            cur = mysql.connection.cursor()
+            cur.execute("""
+                INSERT INTO demandes_credit
+                (nom, prenom, date_naissance, lieu_naissance, cin, nationalite, adresse, telephone, email, situation_familiale, enfants,
+                profession, employeur, secteur, type_contrat, anciennete, revenu, autres_revenus,
+                revenu_menage, depenses, credits_en_cours, compte_banque, epargne,
+                type_credit, montant, duree, objet, garanties)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
+                        %s,%s,%s,%s,%s,%s,%s,
+                        %s,%s,%s,%s,%s,
+                        %s,%s,%s,%s,%s)
+            """, (nom, prenom, date_naissance, lieu_naissance, cin, nationalite, adresse, telephone, email, situation_familiale, enfants,
+                  profession, employeur, secteur, type_contrat, anciennete, revenu, autres_revenus,
+                  revenu_menage, depenses, credits_en_cours, compte_banque, epargne,
+                  type_credit, montant, duree, objet, garanties))
+            mysql.connection.commit()
+            cur.close()
+            
+            # Envoi de l'email de confirmation
+            envoyer_mail_confirmation_demande(email, nom_complet)
+            
+            success = "✅ Votre demande a été enregistrée avec succès ! Un email de confirmation vous a été envoyé."
+        except Exception as e:
+            mysql.connection.rollback()
+            error = f"❌ Erreur lors de l’envoi : {e}"
+
+    return render_template("demande_credit.html", success=success, error=error)
+
 
 # 🏠 Page d'accueil
 @app.route('/accueil')
 def accueil():
-    return render_template('accueil.html')
+    current_language = session.get('language', 'fr')
+    print(f"🌐 Page accueil - Langue actuelle: {current_language}")
+    return render_template('accueil.html', current_language=current_language)
+
+# Route racine qui redirige vers accueil
+@app.route('/')
+def index():
+    return redirect(url_for('accueil'))
 
 @app.route('/formulaire', methods=['GET', 'POST'])
 def formulaire():
@@ -224,6 +338,7 @@ def formulaire():
 
     return render_template('formulaire.html', data=data, error_popup=error_popup)
 
+
 @app.route('/save', methods=['POST'])
 def save():
     cin = request.form['cin']
@@ -248,8 +363,8 @@ def save():
         }
         return render_template('formulaire.html', data=data, error_popup=error_popup)
 
-    # ✅ Si tout est bon, redirige vers accueil ou affiche un message de succès
-    return redirect(url_for('accueil'))
+    # ✅ Si tout est bon, redirige vers demande_credit
+    return redirect(url_for('demande_credit'))
 
 
 

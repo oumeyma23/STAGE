@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ current_language or 'fr' }}" {% if current_language == 'ar' %}dir="rtl"{% endif %}>
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -31,6 +31,23 @@
                         <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
                         <li class="nav-item"><a class="nav-link" href="#portfolio">Portfolio</a></li>
                         <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                        <!-- Language Selector -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi-globe"></i> Language
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('set_language', language='fr') }}">
+                                    🇫🇷 Français
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('set_language', language='en') }}">
+                                    🇺🇸 English
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('set_language', language='ar') }}">
+                                    🇹🇳 العربية
+                                </a></li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -40,13 +57,50 @@
             <div class="container px-4 px-lg-5 h-100">
                 <div class="row gx-4 gx-lg-5 h-100 align-items-center justify-content-center text-center">
                     <div class="col-lg-8 align-self-end">
-                        <h1 class="text-white font-weight-bold">La sécurité est notre engagement et notre priorité.</h1>
+                        {% if current_language == 'ar' %}
+                            <h1 class="text-white font-weight-bold">الأمان هو التزامنا وأولويتنا</h1>
+                        {% elif current_language == 'en' %}
+                            <h1 class="text-white font-weight-bold">Security is our commitment and priority.</h1>
+                        {% else %}
+                            <h1 class="text-white font-weight-bold">La sécurité est notre engagement et notre priorité.</h1>
+                        {% endif %}
                         <hr class="divider" />
                     </div>
                     <div class="col-lg-8 align-self-baseline">
-                        <p class="text-white-75 mb-5">Chez <strong>SecuriBank</strong>, nous protégeons votre identité et vos finances grâce à des solutions 
-        innovantes et sécurisées. Votre confiance est notre priorité.</p>
-                        <a class="btn btn-primary btn-xl" href="{{ url_for('formulaire') }}">Verify My Identity</a>
+                        {% if current_language == 'ar' %}
+                            <p class="text-white-75 mb-4">في <strong>SecuriBank</strong>، نحمي هويتك وأموالك من خلال حلول مبتكرة وآمنة. ثقتك هي أولويتنا.</p>
+                        {% elif current_language == 'en' %}
+                            <p class="text-white-75 mb-4">At <strong>SecuriBank</strong>, we protect your identity and finances through innovative and secure solutions. Your trust is our priority.</p>
+                        {% else %}
+                            <p class="text-white-75 mb-4">Chez <strong>SecuriBank</strong>, nous protégeons votre identité et vos finances grâce à des solutions innovantes et sécurisées. Votre confiance est notre priorité.</p>
+                        {% endif %}
+                        
+                        <!-- Language Selection Cards -->
+                        <div class="row justify-content-center mb-4">
+                            <div class="col-12">
+                                <h3 class="text-white mb-3">Choisissez votre langue / Choose your language / اختر لغتك</h3>
+                                <p class="text-white-50 mb-3">Langue actuelle: {{ current_language or 'fr' }}</p>
+                                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                    <a href="{{ url_for('set_language', language='fr') }}" class="btn btn-outline-light btn-lg language-btn">
+                                        🇫🇷 Français
+                                    </a>
+                                    <a href="{{ url_for('set_language', language='en') }}" class="btn btn-outline-light btn-lg language-btn">
+                                        🇺🇸 English
+                                    </a>
+                                    <a href="{{ url_for('set_language', language='ar') }}" class="btn btn-outline-light btn-lg language-btn">
+                                        🇹🇳 العربية
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if current_language == 'ar' %}
+                            <a class="btn btn-primary btn-xl" href="{{ url_for('formulaire') }}">تحقق من هويتي</a>
+                        {% elif current_language == 'en' %}
+                            <a class="btn btn-primary btn-xl" href="{{ url_for('formulaire') }}">Verify My Identity</a>
+                        {% else %}
+                            <a class="btn btn-primary btn-xl" href="{{ url_for('formulaire') }}">Vérifier mon identité</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

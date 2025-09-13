@@ -1,4 +1,49 @@
 @charset "UTF-8";
+
+/* Custom Language Selector Styles */
+.language-btn {
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    margin: 0.25rem;
+    min-width: 140px;
+}
+
+.language-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* RTL Support for Arabic */
+[lang="ar"] {
+    direction: rtl;
+    text-align: right;
+}
+
+[lang="ar"] .navbar-nav {
+    flex-direction: row-reverse;
+}
+
+[lang="ar"] .text-center {
+    text-align: center !important;
+}
+
+/* Language dropdown improvements */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+    padding: 0.75rem 1.25rem;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: var(--bs-primary);
+    color: white;
+}
 /*!
 * Start Bootstrap - Creative v7.0.7 (https://startbootstrap.com/theme/creative)
 * Copyright 2013-2023 Start Bootstrap
