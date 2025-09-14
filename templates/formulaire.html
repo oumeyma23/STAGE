@@ -87,62 +87,8 @@
     }
   </style>
 </head>
-<body id="page-top">
-  <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3 {% if current_language == 'ar' %}navbar-rtl{% endif %}" id="mainNav">
-    <div class="container px-4 px-lg-5 {% if current_language == 'ar' %}d-flex flex-row-reverse{% endif %}">
-      {% if current_language == 'ar' %}
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-        <a class="navbar-brand" href="{{ url_for('accueil') }}">SecuriBank</a>
-      {% else %}
-        <a class="navbar-brand" href="{{ url_for('accueil') }}">SecuriBank</a>
-        <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-      {% endif %}
-      <div class="collapse navbar-collapse" id="navbarResponsive">
-        <ul class="navbar-nav {% if current_language == 'ar' %}me-auto{% else %}ms-auto{% endif %} my-2 my-lg-0">
-          {% if session.user %}
-            {% if current_language == 'ar' %}
-              <li class="nav-item"><a class="nav-link" href="{{ url_for('accueil') }}">الصفحة الرئيسية</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">تسجيل الخروج</a></li>
-            {% elif current_language == 'en' %}
-              <li class="nav-item"><a class="nav-link" href="{{ url_for('accueil') }}">Home</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
-            {% else %}
-              <li class="nav-item"><a class="nav-link" href="{{ url_for('accueil') }}">Accueil</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Déconnexion</a></li>
-            {% endif %}
-          {% else %}
-            {% if current_language == 'ar' %}
-              <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">تسجيل الدخول</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ url_for('signup') }}">إنشاء حساب</a></li>
-            {% elif current_language == 'en' %}
-              <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ url_for('signup') }}">Sign Up</a></li>
-            {% else %}
-              <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Connexion</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ url_for('signup') }}">Inscription</a></li>
-            {% endif %}
-          {% endif %}
-          <!-- Language Selector -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi-globe"></i>
-            </a>
-            <ul class="dropdown-menu {% if current_language == 'ar' %}dropdown-menu-start{% else %}dropdown-menu-end{% endif %}" aria-labelledby="languageDropdown">
-              <li><a class="dropdown-item" href="{{ url_for('set_language', language='fr') }}">
-                🇫🇷 Français
-              </a></li>
-              <li><a class="dropdown-item" href="{{ url_for('set_language', language='en') }}">
-                🇺🇸 English
-              </a></li>
-              <li><a class="dropdown-item" href="{{ url_for('set_language', language='ar') }}">
-                🇹🇳 العربية
-              </a></li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+    <body>
+        {% include 'navbar.html' %}
 
   <header class="masthead">
     <div class="login-card">
