@@ -1,9 +1,15 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ current_language or 'fr' }}" {% if current_language == 'ar' %}dir="rtl"{% endif %}>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title>Inscription - SecuriBank</title>
+  {% if current_language == 'ar' %}
+    <title>إنشاء حساب - SecuriBank</title>
+  {% elif current_language == 'en' %}
+    <title>Sign Up - SecuriBank</title>
+  {% else %}
+    <title>Inscription - SecuriBank</title>
+  {% endif %}
   <!-- Favicon-->
   <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
   <!-- Bootstrap Icons-->
@@ -58,8 +64,33 @@
               aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ms-auto my-2 my-lg-0">
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Connexion</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('signup') }}">Créer un compte</a></li>
+          {% if current_language == 'ar' %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">تسجيل الدخول</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('signup') }}">إنشاء حساب</a></li>
+          {% elif current_language == 'en' %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('signup') }}">Sign Up</a></li>
+          {% else %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Connexion</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('signup') }}">Créer un compte</a></li>
+          {% endif %}
+          <!-- Language Selector -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi-globe"></i>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+              <li><a class="dropdown-item" href="{{ url_for('set_language', language='fr') }}">
+                🇫🇷 Français
+              </a></li>
+              <li><a class="dropdown-item" href="{{ url_for('set_language', language='en') }}">
+                🇺🇸 English
+              </a></li>
+              <li><a class="dropdown-item" href="{{ url_for('set_language', language='ar') }}">
+                🇹🇳 العربية
+              </a></li>
+            </ul>
+          </li>
         </ul>
       </div>
     </div>
@@ -71,7 +102,13 @@
       <div class="row gx-4 gx-lg-5 h-100 align-items-center justify-content-center text-center">
         <div class="col-lg-6">
           <div class="login-card">
-            <h3><i class="bi-person-plus-fill"></i> Créer un compte</h3>
+            {% if current_language == 'ar' %}
+              <h3><i class="bi-person-plus-fill"></i> إنشاء حساب</h3>
+            {% elif current_language == 'en' %}
+              <h3><i class="bi-person-plus-fill"></i> Create Account</h3>
+            {% else %}
+              <h3><i class="bi-person-plus-fill"></i> Créer un compte</h3>
+            {% endif %}
 
             {% if error %}
               <div class="alert alert-danger mt-3">{{ error }}</div>
@@ -79,27 +116,71 @@
 
             <form method="POST" class="mt-4">
               <div class="form-floating mb-3">
-                <input type="text" name="fullname" class="form-control" id="fullname" placeholder="Votre nom complet" required>
-                <label for="fullname">Nom complet</label>
+                {% if current_language == 'ar' %}
+                  <input type="text" name="fullname" class="form-control" id="fullname" placeholder="الاسم الكامل" required>
+                  <label for="fullname">الاسم الكامل</label>
+                {% elif current_language == 'en' %}
+                  <input type="text" name="fullname" class="form-control" id="fullname" placeholder="Full Name" required>
+                  <label for="fullname">Full Name</label>
+                {% else %}
+                  <input type="text" name="fullname" class="form-control" id="fullname" placeholder="Votre nom complet" required>
+                  <label for="fullname">Nom complet</label>
+                {% endif %}
               </div>
               <div class="form-floating mb-3">
                 <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com" required>
-                <label for="email">Adresse e-mail</label>
+                {% if current_language == 'ar' %}
+                  <label for="email">عنوان البريد الإلكتروني</label>
+                {% elif current_language == 'en' %}
+                  <label for="email">Email Address</label>
+                {% else %}
+                  <label for="email">Adresse e-mail</label>
+                {% endif %}
               </div>
               <div class="form-floating mb-3">
-                <input type="password" name="password" class="form-control" id="password" placeholder="Mot de passe" required>
-                <label for="password">Mot de passe</label>
+                {% if current_language == 'ar' %}
+                  <input type="password" name="password" class="form-control" id="password" placeholder="كلمة المرور" required>
+                  <label for="password">كلمة المرور</label>
+                {% elif current_language == 'en' %}
+                  <input type="password" name="password" class="form-control" id="password" placeholder="Password" required>
+                  <label for="password">Password</label>
+                {% else %}
+                  <input type="password" name="password" class="form-control" id="password" placeholder="Mot de passe" required>
+                  <label for="password">Mot de passe</label>
+                {% endif %}
               </div>
               <div class="form-floating mb-3">
-                <input type="password" name="confirm" class="form-control" id="confirm" placeholder="Confirmez le mot de passe" required>
-                <label for="confirm">Confirmation</label>
+                {% if current_language == 'ar' %}
+                  <input type="password" name="confirm" class="form-control" id="confirm" placeholder="تأكيد كلمة المرور" required>
+                  <label for="confirm">تأكيد كلمة المرور</label>
+                {% elif current_language == 'en' %}
+                  <input type="password" name="confirm" class="form-control" id="confirm" placeholder="Confirm Password" required>
+                  <label for="confirm">Confirm Password</label>
+                {% else %}
+                  <input type="password" name="confirm" class="form-control" id="confirm" placeholder="Confirmez le mot de passe" required>
+                  <label for="confirm">Confirmation</label>
+                {% endif %}
               </div>
               <div class="form-check text-start mb-3">
                 <input class="form-check-input" type="checkbox" id="terms" required>
-                <label class="form-check-label" for="terms">J’accepte les <a href="#">conditions d’utilisation</a></label>
+                {% if current_language == 'ar' %}
+                  <label class="form-check-label" for="terms">أوافق على <a href="#">شروط الاستخدام</a></label>
+                {% elif current_language == 'en' %}
+                  <label class="form-check-label" for="terms">I agree to the <a href="#">terms of service</a></label>
+                {% else %}
+                  <label class="form-check-label" for="terms">J'accepte les <a href="#">conditions d'utilisation</a></label>
+                {% endif %}
               </div>
-              <button type="submit" class="btn btn-primary btn-block w-100">S'inscrire</button>
-              <p class="mt-3">Déjà inscrit ? <a href="{{ url_for('login') }}">Se connecter</a></p>
+              {% if current_language == 'ar' %}
+                <button type="submit" class="btn btn-primary btn-block w-100">إنشاء حساب</button>
+                <p class="mt-3">لديك حساب بالفعل؟ <a href="{{ url_for('login') }}">تسجيل الدخول</a></p>
+              {% elif current_language == 'en' %}
+                <button type="submit" class="btn btn-primary btn-block w-100">Sign Up</button>
+                <p class="mt-3">Already registered? <a href="{{ url_for('login') }}">Login</a></p>
+              {% else %}
+                <button type="submit" class="btn btn-primary btn-block w-100">S'inscrire</button>
+                <p class="mt-3">Déjà inscrit ? <a href="{{ url_for('login') }}">Se connecter</a></p>
+              {% endif %}
             </form>
           </div>
         </div>

@@ -170,6 +170,7 @@ def envoyer_mail_confirmation_demande(destinataire, nom_complet):
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     error = None
+    current_language = session.get('language', 'fr')
     if request.method == 'POST':
         name = request.form['fullname']
         email = request.form['email']
@@ -177,7 +178,12 @@ def signup():
         verifiedpass = request.form['confirm']
 
         if password != verifiedpass:
-            error = "Les mots de passe ne correspondent pas"
+            if current_language == 'ar':
+                error = "كلمات المرور غير متطابقة"
+            elif current_language == 'en':
+                error = "Passwords do not match"
+            else:
+                error = "Les mots de passe ne correspondent pas"
         else:
             # Inscription normale sans vérification AML
             hashed = generate_password_hash(password)
@@ -185,18 +191,24 @@ def signup():
             cur.execute("SELECT * FROM signup WHERE email = %s", (email,))
             user = cur.fetchone()
             if user:
-                error = "Utilisateur déjà existant"
+                if current_language == 'ar':
+                    error = "المستخدم موجود بالفعل"
+                elif current_language == 'en':
+                    error = "User already exists"
+                else:
+                    error = "Utilisateur déjà existant"
             else:
                 cur.execute("INSERT INTO signup (name, email, password) VALUES (%s, %s, %s)", (name, email, hashed))
                 mysql.connection.commit()
                 print(f"✅ Inscription réussie pour : {name}")
                 return redirect(url_for('login'))
-    return render_template('signup.html', error=error)
+    return render_template('signup.html', error=error, current_language=current_language)
 
 # 🔐 Page de connexion
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
+    current_language = session.get('language', 'fr')
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
@@ -205,10 +217,15 @@ def login():
         user = cur.fetchone()
         if user and check_password_hash(user[3], password):
             session['user'] = email
-            return redirect(url_for('formulaire'))
+            return redirect(url_for('accueil'))
         else:
-            error = "Identifiants incorrects"
-    return render_template('login.html', error=error)
+            if current_language == 'ar':
+                error = "بيانات الاعتماد غير صحيحة"
+            elif current_language == 'en':
+                error = "Invalid credentials"
+            else:
+                error = "Identifiants incorrects"
+    return render_template('login.html', error=error, current_language=current_language)
 # 📝 Formulaire de demande de crédit
 @app.route("/demande_credit", methods=["GET", "POST"])
 def demande_credit():
@@ -301,6 +318,7 @@ def formulaire():
     if 'user' not in session:
         return redirect(url_for('login'))
 
+    current_language = session.get('language', 'fr')
     data = None
     error_popup = None
 
@@ -329,14 +347,14 @@ def formulaire():
                 if not result.empty:
                     envoyer_mail(email_utilisateur, nom_complet)
                     error_popup = "❌ Votre nom figure sur une liste AML. Vous ne pouvez pas obtenir un crédit."
-                    return render_template('formulaire.html', data=data, error_popup=error_popup)
+                    return render_template('formulaire.html', data=data, error_popup=error_popup, current_language=current_language)
                 print(f"🧪 Résultat AML pour '{nom_complet}' : {result}")
 
 
             except ValueError:
                 error_popup = "❌ This is not a Tunisian ID card. Please upload a valid document."
 
-    return render_template('formulaire.html', data=data, error_popup=error_popup)
+    return render_template('formulaire.html', data=data, error_popup=error_popup, current_language=current_language)
 
 
 @app.route('/save', methods=['POST'])
