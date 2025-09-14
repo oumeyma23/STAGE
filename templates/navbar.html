@@ -12,10 +12,13 @@
             <ul class="navbar-nav {% if current_language == 'ar' %}me-auto{% else %}ms-auto{% endif %} my-2 my-lg-0">
                 {% if session.user %}
                     {% if current_language == 'ar' %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('demande_credit') }}">طلب قرض</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">تسجيل الخروج</a></li>
                     {% elif current_language == 'en' %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('demande_credit') }}">Credit Request</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
                     {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('demande_credit') }}">Demande Crédit</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Déconnexion</a></li>
                     {% endif %}
                 {% else %}

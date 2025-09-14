@@ -1,63 +1,147 @@
-<!doctype html>
-<html lang="fr">
+<!DOCTYPE html>
+<html lang="{{ current_language or 'fr' }}" {% if current_language == 'ar' %}dir="rtl"{% endif %}>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Formulaire de demande de crédit</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  {% if current_language == 'ar' %}
+    <title>نموذج طلب قرض - SecuriBank</title>
+  {% elif current_language == 'en' %}
+    <title>Credit Request Form - SecuriBank</title>
+  {% else %}
+    <title>Formulaire de demande de crédit - SecuriBank</title>
+  {% endif %}
+  <!-- Favicon-->
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon.ico') }}" />
+  <!-- Bootstrap Icons-->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <!-- Google fonts-->
+  <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:400,700" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic" rel="stylesheet" type="text/css" />
+  <!-- Core theme CSS (Bootstrap + custom) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   <style>
-    :root{
-      --c1:#C2E0E3;
-      --c2:#E0FCFC;
-      --c3:#9DB5C0;
-      --accent:#4543435e;
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: url("{{ url_for('static', filename='assets/img/bg-masthead.jpg') }}") no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Merriweather Sans', sans-serif;
+      color: #fff;
+    }
+    
+    .masthead {
+      min-height: 100vh;
+      padding-top: 120px;
+      padding-bottom: 50px;
     }
 
-    body{
-      background: linear-gradient(180deg,var(--c2) 0%, #ffffff 100%);
-      font-family: Arial, sans-serif;
-      color:#222;
-      padding:20px;
+    .form-card {
+      background-color: rgba(0, 0, 0, 0.85);
+      padding: 2rem;
+      border-radius: 15px;
+      color: white;
+      box-shadow: 0px 0px 15px rgba(0,0,0,0.5);
+      margin: 0 auto;
+      max-width: 1000px;
+    }
+    
+    .step-card {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .card{
-      border-radius:16px;
-      box-shadow:0 6px 18px rgba(0,0,0,0.08);
+    .step-title {
+      color: #ff6600;
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .step-number {
+      background: #ff6600;
+      color: white;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .form-control {
+      background-color: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+    }
+    .form-control:focus {
+      background-color: rgba(255,255,255,0.2);
+      border-color: #ff6600;
+      color: white;
+      box-shadow: 0 0 0 0.2rem rgba(255, 102, 0, 0.25);
+    }
+    .form-control::placeholder {
+      color: rgba(255,255,255,0.7);
+    }
+    label {
+      color: #ddd;
+      font-weight: 500;
+    }
+    .required { color: #ff6600; }
+    .form-text { color: #ccc; }
+    .btn-primary, .btn-success {
+      background-color: #ff6600;
       border: none;
     }
-
-    .card-header{
-      background: linear-gradient(90deg,var(--c1), var(--c3));
-      color:#08303a;
-      font-weight:700;
-      border-top-left-radius:16px;
-      border-top-right-radius:16px;
+    .btn-primary:hover, .btn-success:hover {
+      background-color: #e05500;
     }
-
-    .section-title{
-      display:flex;
-      align-items:center;
-      gap:.5rem;
-      margin-bottom:.75rem;
+    .btn-outline-secondary {
+      border-color: rgba(255,255,255,0.5);
+      color: white;
     }
-
-    .title-label {
-        color: #4543435e; /* Text color */
-        font-weight: bold; /* Font weight */
-        font-size: 16px; /* Font size */
-        font-family: Arial, sans-serif; /* Font family */
-        text-transform: uppercase; /* Transform text to uppercase */
-        letter-spacing: 1px; /* Space between letters */
+    .btn-outline-secondary:hover {
+      background-color: rgba(255,255,255,0.1);
+      border-color: white;
+      color: white;
     }
-
-    .required{color:#c0392b}
-    small.form-text{color:#666}
-
-    .file-preview{font-size:.9rem;color:#0b5560}
-
-    .btn-primary{
-      background:linear-gradient(90deg,#2b7680,#144f56);
-      border:none;
+    
+    .step-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .progress-bar {
+      background: linear-gradient(90deg, #ff6600, #e05500);
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .is-invalid {
+      border-color: #dc3545 !important;
+      background-color: rgba(220, 53, 69, 0.1) !important;
+    }
+    
+    .file-preview {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .file-preview ul {
+      margin: 0;
+      padding-left: 1rem;
     }
 
     @media (max-width:575px){
@@ -66,53 +150,91 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="card mx-auto" style="max-width:1000px">
-      <div class="card-header py-3">
-        <h3 class="mb-0">Formulaire de demande de crédit</h3>
-        <small>Remplissez toutes les informations et joignez les pièces justificatives demandées.</small>
-      </div>
-      <div class="card-body">
-        <!-- Messages de succès et d'erreur -->
+  {% include 'navbar.html' %}
+  
+  <header class="masthead">
+    <div class="container px-4 px-lg-5">
+      <div class="form-card">
+        {% if current_language == 'ar' %}
+          <h2 class="text-center mb-4"><i class="bi-credit-card"></i> نموذج طلب قرض</h2>
+          <p class="text-center text-white-75 mb-4">املأ جميع المعلومات وأرفق المستندات المطلوبة</p>
+        {% elif current_language == 'en' %}
+          <h2 class="text-center mb-4"><i class="bi-credit-card"></i> Credit Request Form</h2>
+          <p class="text-center text-white-75 mb-4">Fill in all information and attach required documents</p>
+        {% else %}
+          <h2 class="text-center mb-4"><i class="bi-credit-card"></i> Formulaire de demande de crédit</h2>
+          <p class="text-center text-white-75 mb-4">Remplissez toutes les informations et joignez les pièces justificatives demandées</p>
+        {% endif %}
+        
+        <!-- Progress Bar -->
+        <div class="progress mb-4" style="height: 8px;">
+          <div class="progress-bar" role="progressbar" style="width: 20%" id="progressBar"></div>
+        </div>
+        <!-- Messages -->
         {% if success %}
         <div class="alert alert-success alert-dismissible fade show" role="alert">
           {{ success }}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endif %}
         
         {% if error %}
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
           {{ error }}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endif %}
 
 <form id="creditForm" method="POST" action="/demande_credit" enctype="multipart/form-data" novalidate>
 
-          <!-- Informations personnelles -->
-          <div class="mb-4">
-            <div class="section-title">
-              <span class="title-label">1. Informations personnelles</span>
+          <!-- Step 1: Personal Information -->
+          <div class="step-card" id="step1">
+            <div class="step-title">
+              <span class="step-number">1</span>
+              {% if current_language == 'ar' %}
+                المعلومات الشخصية
+              {% elif current_language == 'en' %}
+                Personal Information
+              {% else %}
+                Informations personnelles
+              {% endif %}
             </div>
 
-            <div class="form-row">
-              <div class="form-group col-md-4">
-                <label>Nom <span class="required">*</span></label>
-                <input type="text" class="form-control" name="nom" required maxlength="100" placeholder="Nom de famille">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                {% if current_language == 'ar' %}
+                  <label>الاسم الأخير <span class="required">*</span></label>
+                  <input type="text" class="form-control" name="nom" required maxlength="100" placeholder="اسم العائلة">
+                {% elif current_language == 'en' %}
+                  <label>Last Name <span class="required">*</span></label>
+                  <input type="text" class="form-control" name="nom" required maxlength="100" placeholder="Family name">
+                {% else %}
+                  <label>Nom <span class="required">*</span></label>
+                  <input type="text" class="form-control" name="nom" required maxlength="100" placeholder="Nom de famille">
+                {% endif %}
               </div>
 
-              <div class="form-group col-md-4">
-                <label>Prénom <span class="required">*</span></label>
-                <input type="text" class="form-control" name="prenom" required maxlength="100" placeholder="Prénom">
+              <div class="col-md-4 mb-3">
+                {% if current_language == 'ar' %}
+                  <label>الاسم الأول <span class="required">*</span></label>
+                  <input type="text" class="form-control" name="prenom" required maxlength="100" placeholder="الاسم الأول">
+                {% elif current_language == 'en' %}
+                  <label>First Name <span class="required">*</span></label>
+                  <input type="text" class="form-control" name="prenom" required maxlength="100" placeholder="First name">
+                {% else %}
+                  <label>Prénom <span class="required">*</span></label>
+                  <input type="text" class="form-control" name="prenom" required maxlength="100" placeholder="Prénom">
+                {% endif %}
               </div>
 
-              <div class="form-group col-md-4">
-                <label>Date de naissance <span class="required">*</span></label>
+              <div class="col-md-4 mb-3">
+                {% if current_language == 'ar' %}
+                  <label>تاريخ الميلاد <span class="required">*</span></label>
+                {% elif current_language == 'en' %}
+                  <label>Date of Birth <span class="required">*</span></label>
+                {% else %}
+                  <label>Date de naissance <span class="required">*</span></label>
+                {% endif %}
                 <input type="date" class="form-control" name="date_naissance" required>
               </div>
             </div>
@@ -169,12 +291,23 @@
                 <input type="number" class="form-control" name="enfants" min="0" max="20" value="0">
               </div>
             </div>
+            <div class="step-navigation">
+              <div></div>
+              <button type="button" class="btn btn-primary" onclick="nextStep(1)">{% if current_language == 'ar' %}التالي{% elif current_language == 'en' %}Next{% else %}Suivant{% endif %} <i class="bi-arrow-right"></i></button>
+            </div>
           </div>
 
-          <!-- Informations professionnelles -->
-          <div class="mb-4">
-            <div class="section-title">
-              <span class="title-label">2. Informations professionnelles</span>
+          <!-- Step 2: Professional Information -->
+          <div class="step-card hidden" id="step2">
+            <div class="step-title">
+              <span class="step-number">2</span>
+              {% if current_language == 'ar' %}
+                المعلومات المهنية
+              {% elif current_language == 'en' %}
+                Professional Information
+              {% else %}
+                Informations professionnelles
+              {% endif %}
             </div>
 
             <div class="form-row">
@@ -222,12 +355,23 @@
                 <input type="number" step="0.01" class="form-control" name="autres_revenus" min="0" placeholder="loyers, pension...">
               </div>
             </div>
+            <div class="step-navigation">
+              <button type="button" class="btn btn-outline-secondary" onclick="prevStep(2)"><i class="bi-arrow-left"></i> {% if current_language == 'ar' %}السابق{% elif current_language == 'en' %}Previous{% else %}Précédent{% endif %}</button>
+              <button type="button" class="btn btn-primary" onclick="nextStep(2)">{% if current_language == 'ar' %}التالي{% elif current_language == 'en' %}Next{% else %}Suivant{% endif %} <i class="bi-arrow-right"></i></button>
+            </div>
           </div>
 
-          <!-- Informations financières -->
-          <div class="mb-4">
-            <div class="section-title">
-              <span class="title-label">3. Informations financières</span>
+          <!-- Step 3: Financial Information -->
+          <div class="step-card hidden" id="step3">
+            <div class="step-title">
+              <span class="step-number">3</span>
+              {% if current_language == 'ar' %}
+                المعلومات المالية
+              {% elif current_language == 'en' %}
+                Financial Information
+              {% else %}
+                Informations financières
+              {% endif %}
             </div>
 
             <div class="form-row">
@@ -258,12 +402,23 @@
                 <input type="text" class="form-control" name="epargne" maxlength="250" placeholder="Immeuble, véhicule, etc.">
               </div>
             </div>
+            <div class="step-navigation">
+              <button type="button" class="btn btn-outline-secondary" onclick="prevStep(3)"><i class="bi-arrow-left"></i> {% if current_language == 'ar' %}السابق{% elif current_language == 'en' %}Previous{% else %}Précédent{% endif %}</button>
+              <button type="button" class="btn btn-primary" onclick="nextStep(3)">{% if current_language == 'ar' %}التالي{% elif current_language == 'en' %}Next{% else %}Suivant{% endif %} <i class="bi-arrow-right"></i></button>
+            </div>
           </div>
 
-          <!-- Détails du crédit demandé -->
-          <div class="mb-4">
-            <div class="section-title">
-              <span class="title-label">4. Détails du crédit demandé</span>
+          <!-- Step 4: Credit Details -->
+          <div class="step-card hidden" id="step4">
+            <div class="step-title">
+              <span class="step-number">4</span>
+              {% if current_language == 'ar' %}
+                تفاصيل القرض المطلوب
+              {% elif current_language == 'en' %}
+                Credit Details
+              {% else %}
+                Détails du crédit demandé
+              {% endif %}
             </div>
 
             <div class="form-row">
@@ -299,12 +454,23 @@
               <label>Garanties proposées</label>
               <input type="text" class="form-control" name="garanties" maxlength="300" placeholder="Ex: hypothèque, caution, domiciliation salaire...">
             </div>
+            <div class="step-navigation">
+              <button type="button" class="btn btn-outline-secondary" onclick="prevStep(4)"><i class="bi-arrow-left"></i> {% if current_language == 'ar' %}السابق{% elif current_language == 'en' %}Previous{% else %}Précédent{% endif %}</button>
+              <button type="button" class="btn btn-primary" onclick="nextStep(4)">{% if current_language == 'ar' %}التالي{% elif current_language == 'en' %}Next{% else %}Suivant{% endif %} <i class="bi-arrow-right"></i></button>
+            </div>
           </div>
 
-          <!-- Pièces justificatives -->
-          <div class="mb-4">
-            <div class="section-title">
-              <span class="title-label">5. Pièces justificatives (à joindre)</span>
+          <!-- Step 5: Documents -->
+          <div class="step-card hidden" id="step5">
+            <div class="step-title">
+              <span class="step-number">5</span>
+              {% if current_language == 'ar' %}
+                المستندات المطلوبة
+              {% elif current_language == 'en' %}
+                Required Documents
+              {% else %}
+                Pièces justificatives
+              {% endif %}
             </div>
 
             <div class="form-row">
@@ -338,15 +504,22 @@
             <small class="form-text">Format accepté : PDF, JPG, PNG. Taille maximum recommandée par fichier : 10MB.</small>
           </div>
 
-          <!-- Consentement -->
-          <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="consent" required>
-            <label class="form-check-label" for="consent">J'autorise la banque à vérifier les informations fournies et à effectuer des vérifications de crédit. <span class="required">*</span></label>
-          </div>
+            <!-- Consent -->
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="consent" required>
+              {% if current_language == 'ar' %}
+                <label class="form-check-label" for="consent">أوافق على قيام البنك بالتحقق من المعلومات المقدمة وإجراء فحوصات ائتمانية. <span class="required">*</span></label>
+              {% elif current_language == 'en' %}
+                <label class="form-check-label" for="consent">I authorize the bank to verify the information provided and perform credit checks. <span class="required">*</span></label>
+              {% else %}
+                <label class="form-check-label" for="consent">J'autorise la banque à vérifier les informations fournies et à effectuer des vérifications de crédit. <span class="required">*</span></label>
+              {% endif %}
+            </div>
 
-          <div class="d-flex justify-content-between align-items-center">
-            <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">Réinitialiser</button>
-            <button type="submit" class="btn btn-primary">Soumettre la demande</button>
+            <div class="step-navigation">
+              <button type="button" class="btn btn-outline-secondary" onclick="prevStep(5)"><i class="bi-arrow-left"></i> {% if current_language == 'ar' %}السابق{% elif current_language == 'en' %}Previous{% else %}Précédent{% endif %}</button>
+              <button type="submit" class="btn btn-success">{% if current_language == 'ar' %}إرسال الطلب{% elif current_language == 'en' %}Submit Request{% else %}Soumettre la demande{% endif %} <i class="bi-check-circle"></i></button>
+            </div>
           </div>
 
         </form>
@@ -355,17 +528,71 @@
 
       </div>
     </div>
-  </div>
+  </header>
 
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Affiche le nom des fichiers sélectionnés
+    let currentStep = 1;
+    const totalSteps = 5;
+    
+    // Step navigation functions
+    function showStep(step) {
+      // Hide all steps
+      for(let i = 1; i <= totalSteps; i++) {
+        document.getElementById('step' + i).classList.add('hidden');
+      }
+      // Show current step
+      document.getElementById('step' + step).classList.remove('hidden');
+      
+      // Update progress bar
+      const progress = (step / totalSteps) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+      
+      // Scroll to top
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+    
+    function nextStep(step) {
+      // Validate current step before proceeding
+      if(validateStep(step)) {
+        currentStep = step + 1;
+        showStep(currentStep);
+      }
+    }
+    
+    function prevStep(step) {
+      currentStep = step - 1;
+      showStep(currentStep);
+    }
+    
+    function validateStep(step) {
+      const stepElement = document.getElementById('step' + step);
+      const requiredFields = stepElement.querySelectorAll('[required]');
+      let isValid = true;
+      
+      requiredFields.forEach(field => {
+        if(!field.value.trim()) {
+          field.classList.add('is-invalid');
+          isValid = false;
+        } else {
+          field.classList.remove('is-invalid');
+        }
+      });
+      
+      if(!isValid) {
+        alert('Please fill in all required fields before proceeding.');
+      }
+      
+      return isValid;
+    }
+    
+    // File preview function
     function showPreview(input, containerId){
       const container = document.getElementById(containerId);
       container.innerHTML = '';
       if(!input.files || input.files.length===0) return;
       const list = document.createElement('ul');
+      list.style.color = '#ccc';
       for(const f of input.files){
         const li = document.createElement('li');
         li.textContent = f.name + ' (' + Math.round(f.size/1024) + ' KB)';
@@ -374,30 +601,45 @@
       container.appendChild(list);
     }
 
-    document.querySelector('input[name=file_id]').addEventListener('change', e=> showPreview(e.target, 'preview_id'));
-    document.querySelector('input[name=file_domicile]').addEventListener('change', e=> showPreview(e.target, 'preview_domicile'));
-    document.querySelector('input[name=file_revenus]').addEventListener('change', e=> showPreview(e.target, 'preview_revenus'));
-    document.querySelector('input[name=file_releves]').addEventListener('change', e=> showPreview(e.target, 'preview_releves'));
-
-    // Validation et soumission du formulaire
-    document.getElementById('creditForm').addEventListener('submit', function(e){
-      const form = e.target;
-      if(!form.checkValidity()){
-        e.preventDefault();
-        form.classList.add('was-validated');
-        window.scrollTo({top:0, behavior:'smooth'});
-        return;
-      }
-      // Le formulaire est valide, on le laisse se soumettre normalement
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      showStep(1);
+      
+      // Add file preview listeners
+      const fileInputs = document.querySelectorAll('input[type="file"]');
+      fileInputs.forEach(input => {
+        const previewId = 'preview_' + input.name.replace('file_', '');
+        input.addEventListener('change', e => showPreview(e.target, previewId));
+      });
+      
+      // Form validation on submit
+      document.getElementById('creditForm').addEventListener('submit', function(e){
+        const form = e.target;
+        if(!form.checkValidity()){
+          e.preventDefault();
+          form.classList.add('was-validated');
+          return;
+        }
+      });
+      
+      // Real-time validation
+      const inputs = document.querySelectorAll('input, select, textarea');
+      inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+          if(this.hasAttribute('required') && !this.value.trim()) {
+            this.classList.add('is-invalid');
+          } else {
+            this.classList.remove('is-invalid');
+          }
+        });
+        
+        input.addEventListener('input', function() {
+          if(this.classList.contains('is-invalid') && this.value.trim()) {
+            this.classList.remove('is-invalid');
+          }
+        });
+      });
     });
-
-    function resetForm(){
-      const f = document.getElementById('creditForm');
-      f.reset();
-      document.getElementById('result').style.display='none';
-      ['preview_id','preview_domicile','preview_revenus','preview_releves'].forEach(id=>document.getElementById(id).innerHTML='');
-      f.classList.remove('was-validated');
-    }
   </script>
 </body>
 </html>
