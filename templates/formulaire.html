@@ -17,57 +17,73 @@
     html, body {
       height: 100%;
       margin: 0;
-      background: url("{{ url_for('static', filename='assets/img/bg-masthead.jpg') }}") no-repeat center center fixed;
-      background-size: cover;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Poppins', sans-serif;
     }
+    
     .masthead {
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 2rem 0;
     }
+    
     .login-card {
-      background-color: rgba(0, 0, 0, 0.85);
-      padding: 2rem;
-      border-radius: 15px;
-      color: white;
-      box-shadow: 0px 0px 15px rgba(0,0,0,0.5);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 3rem;
+      border-radius: var(--border-radius-lg);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-heavy);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       width: 100%;
-      max-width: 500px;
+      max-width: 600px;
     }
+    
     .footer-card {
-  background-color: rgba(0, 0, 0, 0.85);
-  color: white;
-  border-radius: 15px;
-  box-shadow: 0px 0px 15px rgba(0,0,0,0.5);
-  max-width: 500px;
-  margin: 2rem auto;
-  padding: 1rem;
-  font-size: 0.9rem;
-}
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      color: var(--text-primary);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-medium);
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
 
-    .form-control {
-      background-color: rgba(255,255,255,0.1);
-      border: none;
-      border-bottom: 1px solid #fff;
-      color: white;
+    .form-group-icon {
+      position: relative;
+      margin-bottom: 1.5rem;
     }
-    .form-control:focus {
-      background-color: rgba(255,255,255,0.2);
-      outline: none;
-      box-shadow: none;
-      color: white;
+
+    .form-group-icon .form-control {
+      padding-left: 3rem;
     }
-    label { color: #ddd; }
-    .btn-primary, .btn-success, .btn-warning {
-      background-color: #ff6600;
-      border: none;
+
+    .form-group-icon .input-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      z-index: 10;
+      pointer-events: none;
+      transition: var(--transition);
     }
-    .btn-primary:hover, .btn-success:hover, .btn-warning:hover {
-      background-color: #e05500;
+
+    .form-group-icon .form-control:focus ~ .input-icon,
+    .form-group-icon .form-control:not(:placeholder-shown) ~ .input-icon {
+      color: var(--primary-color);
     }
-    a { color: #ccc; }
+
+    .form-label {
+      color: var(--text-primary);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
     
     /* RTL/LTR Navigation Adjustments */
     .navbar-rtl {
@@ -295,61 +311,73 @@
           
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="cin" class="form-label">
-                {% if current_language == 'ar' %}
-                  رقم بطاقة الهوية
-                {% elif current_language == 'en' %}
-                  ID Number
-                {% else %}
-                  Numéro CIN
-                {% endif %}
-                <span class="required">*</span>
-              </label>
-              <input type="text" class="form-control" id="cin" name="cin" value="{{ data.cin }}" required>
+              <div class="form-group-icon">
+                <label for="cin" class="form-label">
+                  {% if current_language == 'ar' %}
+                    رقم بطاقة الهوية
+                  {% elif current_language == 'en' %}
+                    ID Number
+                  {% else %}
+                    Numéro CIN
+                  {% endif %}
+                  <span class="required">*</span>
+                </label>
+                <input type="text" class="form-control" id="cin" name="cin" value="{{ data.cin }}" required>
+                <i class="bi bi-card-text input-icon"></i>
+              </div>
             </div>
             
             <div class="col-md-6 mb-3">
-              <label for="date" class="form-label">
-                {% if current_language == 'ar' %}
-                  تاريخ الميلاد
-                {% elif current_language == 'en' %}
-                  Date of Birth
-                {% else %}
-                  Date de naissance
-                {% endif %}
-                <span class="required">*</span>
-              </label>
-              <input type="text" class="form-control" id="date" name="date" value="{{ data.date }}" required>
+              <div class="form-group-icon">
+                <label for="date" class="form-label">
+                  {% if current_language == 'ar' %}
+                    تاريخ الميلاد
+                  {% elif current_language == 'en' %}
+                    Date of Birth
+                  {% else %}
+                    Date de naissance
+                  {% endif %}
+                  <span class="required">*</span>
+                </label>
+                <input type="text" class="form-control" id="date" name="date" value="{{ data.date }}" required>
+                <i class="bi bi-calendar-date input-icon"></i>
+              </div>
             </div>
           </div>
           
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="nom" class="form-label">
-                {% if current_language == 'ar' %}
-                  الاسم الأول
-                {% elif current_language == 'en' %}
-                  First Name
-                {% else %}
-                  Prénom
-                {% endif %}
-                <span class="required">*</span>
-              </label>
-              <input type="text" class="form-control" id="nom" name="nom" required>
+              <div class="form-group-icon">
+                <label for="nom" class="form-label">
+                  {% if current_language == 'ar' %}
+                    الاسم الأول
+                  {% elif current_language == 'en' %}
+                    First Name
+                  {% else %}
+                    Prénom
+                  {% endif %}
+                  <span class="required">*</span>
+                </label>
+                <input type="text" class="form-control" id="nom" name="nom" required>
+                <i class="bi bi-person input-icon"></i>
+              </div>
             </div>
             
             <div class="col-md-6 mb-3">
-              <label for="prenom" class="form-label">
-                {% if current_language == 'ar' %}
-                  اسم العائلة
-                {% elif current_language == 'en' %}
-                  Last Name
-                {% else %}
-                  Nom de famille
-                {% endif %}
-                <span class="required">*</span>
-              </label>
-              <input type="text" class="form-control" id="prenom" name="prenom" required>
+              <div class="form-group-icon">
+                <label for="prenom" class="form-label">
+                  {% if current_language == 'ar' %}
+                    اسم العائلة
+                  {% elif current_language == 'en' %}
+                    Last Name
+                  {% else %}
+                    Nom de famille
+                  {% endif %}
+                  <span class="required">*</span>
+                </label>
+                <input type="text" class="form-control" id="prenom" name="prenom" required>
+                <i class="bi bi-person-badge input-icon"></i>
+              </div>
             </div>
           </div>
         </div>
@@ -371,47 +399,56 @@
           
           <div class="row">
             <div class="col-md-12 mb-3">
-              <label for="address" class="form-label">
-                {% if current_language == 'ar' %}
-                  العنوان
-                {% elif current_language == 'en' %}
-                  Address
-                {% else %}
-                  Adresse
-                {% endif %}
-                <span class="required">*</span>
-              </label>
-              <input type="text" class="form-control" id="address" name="address" required>
+              <div class="form-group-icon">
+                <label for="address" class="form-label">
+                  {% if current_language == 'ar' %}
+                    العنوان
+                  {% elif current_language == 'en' %}
+                    Address
+                  {% else %}
+                    Adresse
+                  {% endif %}
+                  <span class="required">*</span>
+                </label>
+                <input type="text" class="form-control" id="address" name="address" required>
+                <i class="bi bi-geo-alt input-icon"></i>
+              </div>
             </div>
           </div>
           
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="phone" class="form-label">
-                {% if current_language == 'ar' %}
-                  رقم الهاتف
-                {% elif current_language == 'en' %}
-                  Phone Number
-                {% else %}
-                  Numéro de téléphone
-                {% endif %}
-                <span class="required">*</span>
-              </label>
-              <input type="tel" class="form-control" id="phone" name="phone" required>
+              <div class="form-group-icon">
+                <label for="phone" class="form-label">
+                  {% if current_language == 'ar' %}
+                    رقم الهاتف
+                  {% elif current_language == 'en' %}
+                    Phone Number
+                  {% else %}
+                    Numéro de téléphone
+                  {% endif %}
+                  <span class="required">*</span>
+                </label>
+                <input type="tel" class="form-control" id="phone" name="phone" required>
+                <i class="bi bi-telephone input-icon"></i>
+              </div>
             </div>
             
             <div class="col-md-6 mb-3">
-              <label for="email" class="form-label">
-                {% if current_language == 'ar' %}
-                  البريد الإلكتروني
-                {% elif current_language == 'en' %}
-                  Email Address
-                {% else %}
-                  Adresse email
-                {% endif %}
-                <span class="required">*</span>
-              </label>
-              <input type="email" class="form-control" id="email" name="email" required>
+              <div class="form-group-icon">
+                <label for="email" class="form-label">
+                  {% if current_language == 'ar' %}
+                    البريد الإلكتروني
+                  {% elif current_language == 'en' %}
+                    Email Address
+                  {% else %}
+                    Adresse email
+                  {% endif %}
+                  <span class="required">*</span>
+                </label>
+                <input type="email" class="form-control" id="email" name="email" required>
+                <i class="bi bi-envelope input-icon"></i>
+              </div>
             </div>
           </div>
         </div>

@@ -1,5 +1,174 @@
 @charset "UTF-8";
 
+/* Import Modern Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Modern Fintech Design Improvements */
+:root {
+  --primary-color: #f4623a;
+  --primary-light: #ff7b4d;
+  --primary-dark: #d4502a;
+  --secondary-color: #2c3e50;
+  --accent-color: #3498db;
+  --success-color: #27ae60;
+  --warning-color: #f39c12;
+  --danger-color: #e74c3c;
+  --light-bg: #f8f9fa;
+  --card-bg: #ffffff;
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --border-color: #e9ecef;
+  --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.15);
+  --shadow-heavy: 0 8px 30px rgba(0, 0, 0, 0.2);
+  --border-radius: 12px;
+  --border-radius-lg: 16px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Global Typography */
+body {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Enhanced Form Styling */
+.form-control {
+  font-family: 'Poppins', sans-serif;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 0.875rem 1rem 0.875rem 3rem;
+  font-size: 0.95rem;
+  font-weight: 400;
+  background-color: var(--card-bg);
+  transition: var(--transition);
+  box-shadow: var(--shadow-light);
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(244, 98, 58, 0.25);
+  background-color: var(--card-bg);
+}
+
+.form-control::placeholder {
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+/* Input Icons */
+.input-group {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  z-index: 10;
+  pointer-events: none;
+  transition: var(--transition);
+}
+
+.form-control:focus + .input-icon,
+.form-control:not(:placeholder-shown) + .input-icon {
+  color: var(--primary-color);
+}
+
+/* Enhanced Cards */
+.card {
+  border: none;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-medium);
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  transition: var(--transition);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-heavy);
+}
+
+/* Modern Buttons */
+.btn {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  border-radius: var(--border-radius);
+  padding: 0.75rem 1.5rem;
+  transition: var(--transition);
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+  color: white;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.btn-outline-primary {
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  background: transparent;
+}
+
+.btn-outline-primary:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Enhanced Masthead */
+.masthead {
+  background: linear-gradient(135deg, 
+    rgba(244, 98, 58, 0.9) 0%, 
+    rgba(52, 73, 94, 0.9) 50%, 
+    rgba(52, 152, 219, 0.9) 100%),
+    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grain)"/></svg>');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  position: relative;
+}
+
+.masthead::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(1px);
+}
+
+.masthead > * {
+  position: relative;
+  z-index: 2;
+}
+
 /* Custom Language Selector Styles */
 .language-btn {
     transition: all 0.3s ease;
@@ -102,7 +271,7 @@
   --bs-font-sans-serif: "Merriweather Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
-  --bs-body-font-family: Merriweather, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+  --bs-body-font-family: 'Poppins', -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
   --bs-body-font-size: 1rem;
   --bs-body-font-weight: 400;
   --bs-body-line-height: 1.5;
@@ -11037,4 +11206,345 @@ header.masthead h1, header.masthead .h1 {
 }
 #portfolio .container-fluid .portfolio-box:hover .portfolio-box-caption, #portfolio .container-sm .portfolio-box:hover .portfolio-box-caption, #portfolio .container-md .portfolio-box:hover .portfolio-box-caption, #portfolio .container-lg .portfolio-box:hover .portfolio-box-caption, #portfolio .container-xl .portfolio-box:hover .portfolio-box-caption, #portfolio .container-xxl .portfolio-box:hover .portfolio-box-caption {
   opacity: 1;
+}
+
+/* ===== MODERN FINTECH ENHANCEMENTS ===== */
+
+/* Enhanced Responsive Design */
+@media (max-width: 768px) {
+  .masthead {
+    padding-top: 6rem;
+    padding-bottom: 4rem;
+    background-attachment: scroll;
+  }
+  
+  .masthead h1 {
+    font-size: 1.8rem !important;
+  }
+  
+  .btn-xl {
+    padding: 1rem 1.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .form-control {
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .input-icon {
+    left: 0.75rem;
+    font-size: 1rem;
+  }
+  
+  .card {
+    margin: 1rem 0.5rem;
+  }
+  
+  .feature-highlight {
+    margin: 0.5rem 0;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .masthead {
+    padding-top: 5rem;
+    padding-bottom: 3rem;
+  }
+  
+  .masthead h1 {
+    font-size: 1.5rem !important;
+    line-height: 1.3;
+  }
+  
+  .btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+  }
+  
+  .btn-xl {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.75rem;
+  }
+  
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Enhanced Form Groups with Icons */
+.form-group-icon {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.form-group-icon .form-control {
+  padding-left: 3rem;
+}
+
+.form-group-icon .input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  z-index: 10;
+  pointer-events: none;
+  transition: var(--transition);
+}
+
+.form-group-icon .form-control:focus ~ .input-icon,
+.form-group-icon .form-control:not(:placeholder-shown) ~ .input-icon {
+  color: var(--primary-color);
+}
+
+/* Enhanced Labels */
+.form-label {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* Modern Step Cards for Multi-step Forms */
+.step-card {
+  background: var(--card-bg);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-medium);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.step-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-heavy);
+}
+
+.step-card h4 {
+  color: var(--primary-color);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.step-number {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: white;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Enhanced Navigation */
+#mainNav .navbar-brand {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 700;
+}
+
+#mainNav .navbar-nav .nav-link {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 500;
+}
+
+/* Modern Alert Styles */
+.alert {
+  border: none;
+  border-radius: var(--border-radius);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  box-shadow: var(--shadow-light);
+}
+
+.alert-success {
+  background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(39, 174, 96, 0.05));
+  color: var(--success-color);
+  border-left: 4px solid var(--success-color);
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(231, 76, 60, 0.05));
+  color: var(--danger-color);
+  border-left: 4px solid var(--danger-color);
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(243, 156, 18, 0.05));
+  color: var(--warning-color);
+  border-left: 4px solid var(--warning-color);
+}
+
+.alert-info {
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(52, 152, 219, 0.05));
+  color: var(--accent-color);
+  border-left: 4px solid var(--accent-color);
+}
+
+/* Enhanced File Upload Styling */
+.file-upload-area {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  text-align: center;
+  background: var(--light-bg);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.file-upload-area:hover {
+  border-color: var(--primary-color);
+  background: rgba(244, 98, 58, 0.05);
+}
+
+.file-upload-area.dragover {
+  border-color: var(--primary-color);
+  background: rgba(244, 98, 58, 0.1);
+  transform: scale(1.02);
+}
+
+/* Enhanced Tables */
+.table {
+  font-family: 'Poppins', sans-serif;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-light);
+}
+
+.table thead th {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: white;
+  font-weight: 600;
+  border: none;
+  padding: 1rem;
+}
+
+.table tbody td {
+  padding: 1rem;
+  border-color: var(--border-color);
+  vertical-align: middle;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(244, 98, 58, 0.05);
+}
+
+/* Loading Spinner */
+.spinner-fintech {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Enhanced Tooltips */
+.tooltip-inner {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  background-color: var(--text-primary);
+  border-radius: var(--border-radius);
+}
+
+/* Progress Bars */
+.progress {
+  height: 8px;
+  border-radius: var(--border-radius);
+  background-color: var(--border-color);
+  overflow: hidden;
+}
+
+.progress-bar {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  transition: width 0.6s ease;
+}
+
+/* Enhanced Badges */
+.badge {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  border-radius: var(--border-radius);
+  padding: 0.5rem 0.75rem;
+}
+
+.badge-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+}
+
+/* Modern Checkbox and Radio Styles */
+.form-check-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.form-check-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(244, 98, 58, 0.25);
+}
+
+/* Enhanced Dropdown */
+.dropdown-menu {
+  border: none;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-medium);
+  font-family: 'Poppins', sans-serif;
+}
+
+.dropdown-item {
+  font-weight: 400;
+  transition: var(--transition);
+}
+
+.dropdown-item:hover {
+  background-color: rgba(244, 98, 58, 0.1);
+  color: var(--primary-color);
+}
+
+/* RTL Support Enhancements */
+[dir="rtl"] .input-icon {
+  left: auto;
+  right: 1rem;
+}
+
+[dir="rtl"] .form-control {
+  padding-left: 1rem;
+  padding-right: 3rem;
+}
+
+[dir="rtl"] .step-number {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+/* Print Styles */
+@media print {
+  .masthead {
+    background: none !important;
+    color: black !important;
+  }
+  
+  .btn {
+    display: none !important;
+  }
+  
+  .navbar {
+    display: none !important;
+  }
 }
