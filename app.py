@@ -64,6 +64,7 @@ def set_language(language=None):
         print(f"🌐 Langue changée vers: {language}")
         print(f"🌐 Session language: {session.get('language')}")
     return redirect(request.referrer or url_for('accueil'))
+
 def envoyer_mail(destinataire, nom_complet):
     subject = "Refus de crédit - SecuriBank"
     body = f"""
@@ -267,6 +268,8 @@ def demande_credit():
     if "user" not in session:
         return redirect(url_for("login"))
 
+    current_language = session.get('language', 'fr')
+    print(f"🌐 Page demande_credit - Langue actuelle: {current_language}")
     success, error = None, None
 
     if request.method == "POST":
@@ -341,7 +344,7 @@ def demande_credit():
             mysql.connection.rollback()
             error = f"❌ Erreur lors de l’envoi : {e}"
 
-    return render_template("demande_credit.html", success=success, error=error)
+    return render_template("demande_credit.html", success=success, error=error, current_language=current_language)
 
 
 # 🏠 Page d'accueil
