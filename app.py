@@ -16,6 +16,7 @@ import uuid
 import cv2
 import traceback
 from AML import check_name
+from credit_prediction import credit_predictor
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -112,10 +113,44 @@ def envoyer_mail(destinataire, nom_complet):
         print(f"❌ Erreur d'envoi de mail: {type(e).__name__}: {e}")
         return False
 
-def envoyer_mail_confirmation_demande(destinataire, nom_complet):
+def envoyer_mail_confirmation_demande(destinataire, nom_complet, prediction_result=None):
     """Envoie un email de confirmation d'enregistrement de demande de crédit"""
-    subject = "Confirmation de demande de crédit - SecuriBank"
-    body = f"""
+    if prediction_result and prediction_result['approved']:
+        subject = "✅ Pré-approbation de crédit - SecuriBank"
+        body = f"""
+    Bonjour {nom_complet},
+
+    Excellente nouvelle ! Votre demande de crédit a reçu une pré-approbation automatique.
+
+    📊 Résultats de l'analyse :
+    • Probabilité d'approbation : {prediction_result['probability']:.1%}
+    • Niveau de risque : {prediction_result['risk_level']}
+    
+    Votre dossier sera finalisé par nos équipes dans les plus brefs délais.
+
+    Cordialement,
+    L'équipe SecuriBank
+    """
+    elif prediction_result and not prediction_result['approved']:
+        subject = "❌ Demande de crédit - Analyse requise - SecuriBank"
+        body = f"""
+    Bonjour {nom_complet},
+
+    Nous avons bien reçu votre demande de crédit.
+
+    📊 Résultats de l'analyse préliminaire :
+    • Probabilité d'approbation : {prediction_result['probability']:.1%}
+    • Niveau de risque : {prediction_result['risk_level']}
+    
+    Votre dossier nécessite une étude approfondie par nos experts.
+    Nous vous répondrons dans les plus brefs délais.
+
+    Cordialement,
+    L'équipe SecuriBank
+    """
+    else:
+        subject = "Confirmation de demande de crédit - SecuriBank"
+        body = f"""
     Bonjour {nom_complet},
 
     Nous avons bien reçu votre demande de crédit.
@@ -271,7 +306,11 @@ def demande_credit():
             
             nom_complet = f"{prenom} {nom}"
 
-            # Insertion en base
+            # 🤖 Prédiction automatique du crédit
+            prediction_result = credit_predictor.predict_credit_approval(request.form)
+            print(f"🤖 Résultat de la prédiction pour {nom_complet}: {prediction_result}")
+            
+            # Insertion en base avec le résultat de la prédiction
             cur = mysql.connection.cursor()
             cur.execute("""
                 INSERT INTO demandes_credit
@@ -290,10 +329,14 @@ def demande_credit():
             mysql.connection.commit()
             cur.close()
             
-            # Envoi de l'email de confirmation
-            envoyer_mail_confirmation_demande(email, nom_complet)
+            # Envoi de l'email de confirmation avec résultat de prédiction
+            envoyer_mail_confirmation_demande(email, nom_complet, prediction_result)
             
-            success = "✅ Votre demande a été enregistrée avec succès ! Un email de confirmation vous a été envoyé."
+            # Message de succès personnalisé selon la prédiction
+            if prediction_result['approved']:
+                success = f"✅ Félicitations ! Votre demande a été pré-approuvée automatiquement !\n🎯 {prediction_result['message']}\n📧 Un email de confirmation vous a été envoyé."
+            else:
+                success = f"📝 Votre demande a été enregistrée et sera étudiée par nos experts.\n📊 {prediction_result['message']}\n📧 Un email de confirmation vous a été envoyé."
         except Exception as e:
             mysql.connection.rollback()
             error = f"❌ Erreur lors de l’envoi : {e}"
