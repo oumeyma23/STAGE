@@ -85,6 +85,126 @@
         left: 0;
         right: auto;
     }
+    
+    /* Form Sections Styling */
+    .form-section {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .form-section:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 102, 0, 0.3);
+    }
+    
+    .section-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid rgba(255, 102, 0, 0.3);
+    }
+    
+    .section-title {
+        color: #ff6600;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .section-title i {
+        font-size: 1.2rem;
+    }
+    
+    /* Form Labels and Inputs */
+    .form-label {
+        color: #e0e0e0;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        display: block;
+        font-size: 0.95rem;
+    }
+    
+    .required {
+        color: #ff6600;
+        font-weight: bold;
+    }
+    
+    .form-control {
+        background-color: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 8px;
+        color: white;
+        padding: 0.75rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        background-color: rgba(255,255,255,0.12);
+        border-color: #ff6600;
+        box-shadow: 0 0 0 0.2rem rgba(255, 102, 0, 0.25);
+        color: white;
+    }
+    
+    .form-control::placeholder {
+        color: rgba(255,255,255,0.6);
+    }
+    
+    /* Checkbox styling */
+    .form-check {
+        padding-left: 1.5rem;
+    }
+    
+    .form-check-input {
+        background-color: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+    
+    .form-check-input:checked {
+        background-color: #ff6600;
+        border-color: #ff6600;
+    }
+    
+    .form-check-label {
+        color: #e0e0e0;
+        font-size: 0.95rem;
+    }
+    
+    /* Button improvements */
+    .btn-lg {
+        padding: 0.75rem 2rem;
+        font-size: 1.1rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+    }
+    
+    /* Responsive improvements */
+    @media (max-width: 768px) {
+        .form-section {
+            padding: 1rem;
+        }
+        
+        .section-title {
+            font-size: 1rem;
+        }
+        
+        .btn-lg {
+            padding: 0.6rem 1.5rem;
+            font-size: 1rem;
+        }
+    }
   </style>
 </head>
     <body>
@@ -92,30 +212,253 @@
 
   <header class="masthead">
     <div class="login-card">
-      <h2 class="mb-4">Upload your ID image</h2>
-      <form method="POST" enctype="multipart/form-data" class="mb-5">
-        <div class="form-group mb-3">
-          <input type="file" name="image" class="form-control-file" required>
+      <!-- Section Upload d'image -->
+      <div class="form-section mb-4">
+        <div class="section-header">
+          <h5 class="section-title">
+            <i class="bi-camera-fill"></i>
+            {% if current_language == 'ar' %}
+              تحميل صورة بطاقة الهوية
+            {% elif current_language == 'en' %}
+              Upload ID Image
+            {% else %}
+              Télécharger l'image CIN
+            {% endif %}
+          </h5>
         </div>
-        <button type="submit" class="btn btn-primary w-100">Extract Data</button>
-      </form>
+        
+        <form method="POST" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="image" class="form-label">
+              {% if current_language == 'ar' %}
+                اختر صورة بطاقة الهوية
+              {% elif current_language == 'en' %}
+                Select ID card image
+              {% else %}
+                Sélectionner l'image de la CIN
+              {% endif %}
+              <span class="required">*</span>
+            </label>
+            <input type="file" name="image" id="image" class="form-control" accept="image/*" required>
+            <small class="form-text text-muted mt-2">
+              {% if current_language == 'ar' %}
+                الصيغ المدعومة: JPG, PNG, PDF - الحد الأقصى: 10MB
+              {% elif current_language == 'en' %}
+                Supported formats: JPG, PNG, PDF - Max size: 10MB
+              {% else %}
+                Formats supportés : JPG, PNG, PDF - Taille max : 10MB
+              {% endif %}
+            </small>
+          </div>
+          
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary btn-lg px-4">
+              <i class="bi-upload"></i>
+              {% if current_language == 'ar' %}
+                استخراج البيانات
+              {% elif current_language == 'en' %}
+                Extract Data
+              {% else %}
+                Extraire les données
+              {% endif %}
+            </button>
+          </div>
+        </form>
+      </div>
 
       {% if data %}
-      <h3 class="mb-3"><i class="bi-person-badge"></i> Pre-filled KYC Form</h3>
+      <h3 class="mb-4 text-center"><i class="bi-person-badge"></i> 
+        {% if current_language == 'ar' %}
+          نموذج التحقق من الهوية
+        {% elif current_language == 'en' %}
+          Identity Verification Form
+        {% else %}
+          Formulaire de Vérification d'Identité
+        {% endif %}
+      </h3>
+      
       <form method="POST" action="/save">
-  <div class="mb-3"><label for="cin">ID Number</label><input type="text" class="form-control" id="cin" name="cin" value="{{ data.cin }}"></div>
-  <div class="mb-3"><label for="nom">First Name</label><input type="text" class="form-control" id="nom" name="nom" ></div>
-  <div class="mb-3"><label for="prenom">Last Name</label><input type="text" class="form-control" id="prenom" name="prenom" ></div>
-  <div class="mb-3"><label for="date">Date of Birth</label><input type="text" class="form-control" id="date" name="date" value="{{ data.date }}"></div>
-  <div class="mb-3"><label for="address">Address</label><input type="text" class="form-control" id="address" name="address"></div>
-  <div class="mb-3"><label for="phone">Phone Number</label><input type="text" class="form-control" id="phone" name="phone"></div>
-  <div class="mb-3"><label for="email">Email Address</label><input type="email" class="form-control" id="email" name="email" required></div>
-  <div class="form-check mb-3">
-    <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
-    <label class="form-check-label" for="terms">I accept the <a href="#">terms and conditions</a></label>
-  </div>
-<button type="button" class="btn btn-warning w-100" id="verifyBtn" onclick="openCameraModal()">🔐 Verify Identity</button>
-</form>
+        <!-- Section 1: Informations personnelles -->
+        <div class="form-section mb-4">
+          <div class="section-header">
+            <h5 class="section-title">
+              <i class="bi-person-fill"></i>
+              {% if current_language == 'ar' %}
+                المعلومات الشخصية
+              {% elif current_language == 'en' %}
+                Personal Information
+              {% else %}
+                Informations personnelles
+              {% endif %}
+            </h5>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="cin" class="form-label">
+                {% if current_language == 'ar' %}
+                  رقم بطاقة الهوية
+                {% elif current_language == 'en' %}
+                  ID Number
+                {% else %}
+                  Numéro CIN
+                {% endif %}
+                <span class="required">*</span>
+              </label>
+              <input type="text" class="form-control" id="cin" name="cin" value="{{ data.cin }}" required>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label for="date" class="form-label">
+                {% if current_language == 'ar' %}
+                  تاريخ الميلاد
+                {% elif current_language == 'en' %}
+                  Date of Birth
+                {% else %}
+                  Date de naissance
+                {% endif %}
+                <span class="required">*</span>
+              </label>
+              <input type="text" class="form-control" id="date" name="date" value="{{ data.date }}" required>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="nom" class="form-label">
+                {% if current_language == 'ar' %}
+                  الاسم الأول
+                {% elif current_language == 'en' %}
+                  First Name
+                {% else %}
+                  Prénom
+                {% endif %}
+                <span class="required">*</span>
+              </label>
+              <input type="text" class="form-control" id="nom" name="nom" required>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label for="prenom" class="form-label">
+                {% if current_language == 'ar' %}
+                  اسم العائلة
+                {% elif current_language == 'en' %}
+                  Last Name
+                {% else %}
+                  Nom de famille
+                {% endif %}
+                <span class="required">*</span>
+              </label>
+              <input type="text" class="form-control" id="prenom" name="prenom" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Informations de contact -->
+        <div class="form-section mb-4">
+          <div class="section-header">
+            <h5 class="section-title">
+              <i class="bi-envelope-fill"></i>
+              {% if current_language == 'ar' %}
+                معلومات الاتصال
+              {% elif current_language == 'en' %}
+                Contact Information
+              {% else %}
+                Informations de contact
+              {% endif %}
+            </h5>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-12 mb-3">
+              <label for="address" class="form-label">
+                {% if current_language == 'ar' %}
+                  العنوان
+                {% elif current_language == 'en' %}
+                  Address
+                {% else %}
+                  Adresse
+                {% endif %}
+                <span class="required">*</span>
+              </label>
+              <input type="text" class="form-control" id="address" name="address" required>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="phone" class="form-label">
+                {% if current_language == 'ar' %}
+                  رقم الهاتف
+                {% elif current_language == 'en' %}
+                  Phone Number
+                {% else %}
+                  Numéro de téléphone
+                {% endif %}
+                <span class="required">*</span>
+              </label>
+              <input type="tel" class="form-control" id="phone" name="phone" required>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label for="email" class="form-label">
+                {% if current_language == 'ar' %}
+                  البريد الإلكتروني
+                {% elif current_language == 'en' %}
+                  Email Address
+                {% else %}
+                  Adresse email
+                {% endif %}
+                <span class="required">*</span>
+              </label>
+              <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Conditions et vérification -->
+        <div class="form-section mb-4">
+          <div class="section-header">
+            <h5 class="section-title">
+              <i class="bi-shield-check"></i>
+              {% if current_language == 'ar' %}
+                التحقق والموافقة
+              {% elif current_language == 'en' %}
+                Verification & Consent
+              {% else %}
+                Vérification et consentement
+              {% endif %}
+            </h5>
+          </div>
+          
+          <div class="form-check mb-4">
+            <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+            <label class="form-check-label" for="terms">
+              {% if current_language == 'ar' %}
+                أوافق على <a href="#" class="text-warning">الشروط والأحكام</a>
+              {% elif current_language == 'en' %}
+                I accept the <a href="#" class="text-warning">terms and conditions</a>
+              {% else %}
+                J'accepte les <a href="#" class="text-warning">termes et conditions</a>
+              {% endif %}
+              <span class="required">*</span>
+            </label>
+          </div>
+          
+          <div class="text-center">
+            <button type="button" class="btn btn-warning btn-lg px-5" id="verifyBtn" onclick="openCameraModal()">
+              🔐 
+              {% if current_language == 'ar' %}
+                التحقق من الهوية
+              {% elif current_language == 'en' %}
+                Verify Identity
+              {% else %}
+                Vérifier l'identité
+              {% endif %}
+            </button>
+          </div>
+        </div>
+      </form>
 
       {% endif %}
     </div>
