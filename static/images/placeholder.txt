@@ -1,0 +1,7 @@
+Placez votre image bank-facade.jpg ici.
+
+Si vous n'avez pas encore l'image, vous pouvez temporairement utiliser une URL d'image de banque depuis internet en modifiant le CSS :
+
+background: url('https://images.unsplash.com/photo-1541354329998-f4d9a9f9297f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center center / cover no-repeat fixed;
+
+Cette URL pointe vers une belle façade de banque classique sur Unsplash.

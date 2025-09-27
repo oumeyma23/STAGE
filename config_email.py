@@ -1,14 +1,23 @@
 # Configuration SMTP pour l'envoi d'emails
 # ⚠️ IMPORTANT: Ne partagez jamais ce fichier avec vos vraies credentials !
 
-# Configuration Zoho Mail
+# Configuration Gmail - IMPORTANT: Utilisez votre vraie adresse Gmail
 SMTP_CONFIG = {
     'server': 'smtp.gmail.com',
     'port': 587,
-    'email': 'oumaimasokkeh@gmail.com',
-    'password': 'ktmw auhv bmmq fnpy',
+    'email': 'oumaimasokkeh@gmail.com',  # Votre vraie adresse Gmail
+    'password': 'ktmw auhv bmmq fnpy',    # Votre mot de passe d'application Gmail
     'use_tls': True
 }
+
+# Configuration ESPRIT (si vous voulez utiliser votre email ESPRIT)
+# SMTP_CONFIG = {
+#     'server': 'smtp.esprit.tn',  # Serveur SMTP d'ESPRIT (à vérifier)
+#     'port': 587,
+#     'email': 'oumeyma.sokkeh@esprit.tn',
+#     'password': 'votre_mot_de_passe_esprit',
+#     'use_tls': True
+# }
 
 
 

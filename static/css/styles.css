@@ -32,8 +32,60 @@ body {
   font-weight: 400;
   line-height: 1.6;
   color: var(--text-primary);
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   min-height: 100vh;
+  width: 100%;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+/* Overlay avec effet flou pour l'image de background */
+body::before {
+  content: '';
+  position: fixed;
+  top: -10px;
+  left: -10px;
+  width: calc(100vw + 20px);
+  height: calc(100vh + 20px);
+  background: url('../assets/img/background.png') center center / cover no-repeat fixed,
+              url('https://images.unsplash.com/photo-1541354329998-f4d9a9f9297f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center center / cover no-repeat fixed;
+  filter: blur(3px);
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* Overlay semi-transparent pour améliorer la lisibilité */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.1);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* HTML avec background neutre */
+html {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  min-height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Forcer l'image sur tous les conteneurs */
+* {
+  background-attachment: inherit;
+}
+
+/* Container principal avec image visible */
+.container, .container-fluid {
+  position: relative;
+  z-index: 1;
 }
 
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
@@ -92,15 +144,17 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 .card {
   border: none;
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-medium);
-  background: var(--card-bg);
+  box-shadow: var(--shadow-heavy);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(10px);
   transition: var(--transition);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: var(--shadow-heavy);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.85);
 }
 
 /* Modern Buttons */
@@ -141,16 +195,12 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 /* Enhanced Masthead */
 .masthead {
-  background: linear-gradient(135deg, 
-    rgba(244, 98, 58, 0.9) 0%, 
-    rgba(52, 73, 94, 0.9) 50%, 
-    rgba(52, 152, 219, 0.9) 100%),
-    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grain)"/></svg>');
-  background-attachment: fixed;
-  background-size: cover;
-  background-position: center;
+  background: transparent;
   min-height: 100vh;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .masthead::before {
@@ -160,13 +210,140 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(1px);
+  z-index: 1;
 }
 
 .masthead > * {
   position: relative;
   z-index: 2;
+}
+
+/* Conteneurs de formulaires avec effet glassmorphism */
+.login-card, .otp-card, .form-section {
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Navigation transparente sur l'image */
+.navbar, .navbar-light, #mainNav {
+  background: transparent !important;
+  background-color: transparent !important;
+  backdrop-filter: blur(3px) !important;
+  border-bottom: none !important;
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+  box-shadow: none !important;
+}
+
+/* Navigation brand et liens plus visibles */
+.navbar-brand, .navbar-nav .nav-link, .dropdown-item {
+  color: white !important;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8) !important;
+  font-weight: 700 !important;
+  font-size: 1.1rem !important;
+}
+
+.navbar-brand:hover, .navbar-nav .nav-link:hover, .dropdown-item:hover {
+  color: var(--primary-color) !important;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.9) !important;
+  background: rgba(244, 98, 58, 0.1) !important;
+}
+
+/* Dropdown menu transparent */
+.dropdown-menu {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Navbar toggler pour mobile */
+.navbar-toggler {
+  border: 2px solid white !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='m4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* Assurer que l'image est visible partout */
+.masthead, .container, .row, .col {
+  background: transparent !important;
+}
+
+/* Haut de page complètement transparent */
+header, .header, .top-section {
+  background: transparent !important;
+}
+
+/* Zone du haut sans overlay */
+.navbar-container, .top-nav {
+  background: transparent !important;
+}
+
+/* Supprimer tout background du header */
+.page-header, .site-header {
+  background: none !important;
+  background-color: transparent !important;
+}
+
+/* Réduire l'opacité des éléments pour voir l'image */
+.alert {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(5px) !important;
+}
+
+/* Styles spécifiques pour la page demande de crédit */
+.demande-credit-container {
+  background: transparent !important;
+  min-height: 100vh;
+  padding: 2rem 0;
+}
+
+.demande-credit-form {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border-radius: var(--border-radius-lg);
+  padding: 3rem;
+  box-shadow: var(--shadow-heavy);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  margin: 2rem auto;
+  max-width: 800px;
+}
+
+/* Harmoniser les formulaires avec le design signup */
+.form-section, .step-section {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(15px) !important;
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-medium);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Container principal transparent pour voir l'arrière-plan */
+.container-fluid, .main-content {
+  background: transparent !important;
+}
+
+/* Assurer que l'image de fond est visible sur toute la page */
+.page-wrapper, .content-wrapper {
+  background: transparent !important;
+  min-height: 100vh;
+}
+
+/* Formulaires plus transparents */
+.form-control {
+  background-color: rgba(248, 249, 250, 0.8) !important;
+}
+
+.form-control:focus {
+  background-color: rgba(255, 255, 255, 0.9) !important;
 }
 
 /* Custom Language Selector Styles */
@@ -11312,12 +11489,13 @@ header.masthead h1, header.masthead .h1 {
 
 /* Modern Step Cards for Multi-step Forms */
 .step-card {
-  background: var(--card-bg);
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
   border-radius: var(--border-radius-lg);
   padding: 2rem;
   margin-bottom: 1.5rem;
-  box-shadow: var(--shadow-medium);
-  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-heavy) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
   transition: var(--transition);
 }
 

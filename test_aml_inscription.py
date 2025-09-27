@@ -12,13 +12,15 @@ def test_aml_verification():
     print("🧪 Test de la vérification AML lors de l'inscription")
     print("=" * 50)
     
-    # Test avec des noms fictifs
+    # Test avec des noms fictifs et le cas problématique
     test_names = [
         "John Smith",
         "Ahmed Ben Ali", 
         "Mohamed Trabelsi",
         "Sarah Johnson",
-        "Ali Hassan"
+        "Ali Hassan",
+        "sokkeh oumeyma",  # Cas de test spécifique
+        "oumeyma sokkeh"   # Inversion pour tester
     ]
     
     for name in test_names:

@@ -1,1040 +1,393 @@
 <!DOCTYPE html>
-<html lang="{{ current_language or 'fr' }}" {% if current_language == 'ar' %}dir="rtl"{% endif %}>
+<html lang="{% if current_language == 'ar' %}ar{% else %}fr{% endif %}" {% if current_language == 'ar' %}dir="rtl"{% endif %}>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  {% if current_language == 'ar' %}
-    <title>نموذج طلب قرض - SecuriBank</title>
-  {% elif current_language == 'en' %}
-    <title>Credit Request Form - SecuriBank</title>
-  {% else %}
-    <title>Formulaire de demande de crédit - SecuriBank</title>
-  {% endif %}
-  <!-- Favicon-->
-  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon.ico') }}" />
-  <!-- Bootstrap Icons-->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
-  <!-- Google fonts-->
-  <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:400,700" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic" rel="stylesheet" type="text/css" />
-  <!-- Core theme CSS (Bootstrap + custom) -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if current_language == 'ar' %}طلب ائتمان{% elif current_language == 'en' %}Credit Application{% else %}Demande de Crédit{% endif %} - SecuriBank</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-  <style>
-    html, body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      color: var(--text-primary);
-    }
-    
-    .masthead {
-      min-height: auto;
-      padding-top: 120px;
-      padding-bottom: 2rem;
-    }
-
-    .form-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      padding: 3rem;
-      border-radius: var(--border-radius-lg);
-      color: var(--text-primary);
-      box-shadow: var(--shadow-heavy);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      margin: 0 auto 2rem auto;
-      max-width: 1000px;
-    }
-
-    .container {
-      padding-bottom: 2rem;
-    }
-    
-    .step-card {
-      background: var(--card-bg);
-      border-radius: var(--border-radius-lg);
-      padding: 2rem;
-      margin-bottom: 2rem;
-      border: 1px solid var(--border-color);
-      box-shadow: var(--shadow-medium);
-      transition: var(--transition);
-    }
-    
-    .step-card:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-heavy);
-      border-color: var(--primary-color);
-    }
-
-    .step-title {
-      color: var(--primary-color);
-      font-weight: 600;
-      font-size: 1.3em;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 2px solid var(--primary-color);
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    
-    .step-number {
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-      color: white;
-      border-radius: 50%;
-      width: 35px;
-      height: 35px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 1.1rem;
-      box-shadow: var(--shadow-light);
-    }
-
-    .form-group-icon {
-      position: relative;
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group-icon .form-control {
-      padding-left: 3rem;
-    }
-
-    .form-group-icon .input-icon {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-secondary);
-      font-size: 1.1rem;
-      z-index: 10;
-      pointer-events: none;
-      transition: var(--transition);
-    }
-
-    .form-group-icon .form-control:focus ~ .input-icon,
-    .form-group-icon .form-control:not(:placeholder-shown) ~ .input-icon {
-      color: var(--primary-color);
-    }
-
-    .form-label {
-      color: #000000;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-    }
-
-    label {
-      color: #000000 !important;
-      font-weight: 500;
-    }
-
-    /* Steps Navigation */
-    .steps-nav {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 2rem;
-      margin-bottom: 2rem;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: var(--border-radius);
-      backdrop-filter: blur(10px);
-    }
-
-    .step-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-      position: relative;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .step-item:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      top: 15px;
-      right: -1.5rem;
-      width: 2rem;
-      height: 2px;
-      background: var(--border-color);
-      z-index: 1;
-    }
-
-    .step-item.active:not(:last-child)::after {
-      background: var(--primary-color);
-    }
-
-    .step-circle {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: var(--border-color);
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 0.9rem;
-      transition: var(--transition);
-      z-index: 2;
-      position: relative;
-    }
-
-    .step-item.active .step-circle {
-      background: var(--primary-color);
-      color: white;
-    }
-
-    .step-label {
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-      text-align: center;
-      transition: var(--transition);
-    }
-
-    .step-item.active .step-label {
-      color: var(--primary-color);
-      font-weight: 600;
-    }
-
-    @media (max-width: 768px) {
-      .steps-nav {
-        gap: 1rem;
-        padding: 0.75rem;
-      }
-      
-      .step-item:not(:last-child)::after {
-        right: -0.75rem;
-        width: 1rem;
-      }
-      
-      .step-label {
-        font-size: 0.7rem;
-        max-width: 60px;
-      }
-    }
-
-    /* Continue Button Styling */
-    .btn-continue {
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-      border: none;
-      border-radius: var(--border-radius);
-      padding: 0.75rem 2rem;
-      font-weight: 600;
-      font-size: 0.95rem;
-      color: white;
-      box-shadow: var(--shadow-light);
-      transition: var(--transition);
-      text-transform: none;
-    }
-
-    .btn-continue:hover {
-      background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-medium);
-      color: white;
-    }
-
-    .step-navigation {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border-color);
-    }
-
-    /* Form text improvements */
-    .form-text {
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-      margin-top: 0.25rem;
-      font-style: italic;
-    }
-
-    /* Required field asterisk */
-    .required {
-      color: var(--danger-color);
-      font-weight: bold;
-    }
-
-    /* Step titles */
-    .step-title {
-      color: var(--text-primary) !important;
-    }
-    
-    .form-control:focus {
-      background-color: rgba(255,255,255,0.15);
-      border-color: #ff6600;
-      color: white;
-      box-shadow: 0 0 0 0.2rem rgba(255, 102, 0, 0.25);
-      transform: translateY(-1px);
-    }
-    
-    .form-control::placeholder {
-      color: rgba(255,255,255,0.6);
-    }
-    
-    label {
-      color: #e8e8e8;
-      font-weight: 500;
-      font-size: 0.95rem;
-      margin-bottom: 0.5rem;
-      display: block;
-    }
-    
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-    
-    .form-row {
-      margin-bottom: 0.75rem;
-    }
-    
-    .form-row .form-group {
-      padding-right: 0.75rem;
-      padding-left: 0.75rem;
-    }
-    .required { color: #ff6600; }
-    .form-text { color: #ccc; }
-    .btn-primary, .btn-success {
-      background-color: #ff6600;
-      border: none;
-    }
-    .btn-primary:hover, .btn-success:hover {
-      background-color: #e05500;
-    }
-    
-    .prediction-result {
-      background: linear-gradient(135deg, rgba(255, 102, 0, 0.1), rgba(255, 102, 0, 0.05));
-      border: 2px solid rgba(255, 102, 0, 0.3);
-      border-radius: 15px;
-      padding: 1.5rem;
-      margin: 1rem 0;
-      color: white;
-    }
-    
-    .prediction-approved {
-      background: linear-gradient(135deg, rgba(40, 167, 69, 0.2), rgba(40, 167, 69, 0.1));
-      border-color: rgba(40, 167, 69, 0.5);
-    }
-    
-    .prediction-rejected {
-      background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(220, 53, 69, 0.1));
-      border-color: rgba(220, 53, 69, 0.5);
-    }
-    
-    .prediction-icon {
-      font-size: 2rem;
-      margin-right: 0.5rem;
-    }
-    .btn-outline-secondary {
-      border-color: rgba(255,255,255,0.5);
-      color: white;
-    }
-    .btn-outline-secondary:hover {
-      background-color: rgba(255,255,255,0.1);
-      border-color: white;
-      color: white;
-    }
-    
-    .step-navigation {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 2.5rem;
-      padding-top: 1.5rem;
-      border-top: 2px solid rgba(255,255,255,0.15);
-    }
-    
-    .btn {
-      border-radius: 8px;
-      padding: 0.6rem 1.5rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      border: none;
-    }
-    
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-    
-    .progress-bar {
-      background: linear-gradient(90deg, #ff6600, #e05500);
-    }
-    
-    .hidden {
-      display: none;
-    }
-    
-    .is-invalid {
-      border-color: #dc3545 !important;
-      background-color: rgba(220, 53, 69, 0.1) !important;
-    }
-    
-    .file-preview {
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-    }
-    
-    .file-preview ul {
-      margin: 0;
-      padding-left: 1rem;
-    }
-
-    /* File input styling */
-    input[type="file"].form-control {
-      padding: 0.5rem;
-      background-color: rgba(255,255,255,0.05);
-      border: 2px dashed rgba(255,255,255,0.3);
-      transition: all 0.3s ease;
-    }
-    
-    input[type="file"].form-control:hover {
-      border-color: rgba(255, 102, 0, 0.5);
-      background-color: rgba(255,255,255,0.08);
-    }
-    
-    input[type="file"].form-control:focus {
-      border-color: #ff6600;
-      border-style: solid;
-      background-color: rgba(255,255,255,0.1);
-    }
-    
-    /* Textarea styling */
-    textarea.form-control {
-      resize: vertical;
-      min-height: 80px;
-    }
-    
-    /* Select styling */
-    select.form-control {
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-      background-position: right 0.75rem center;
-      background-repeat: no-repeat;
-      background-size: 16px 12px;
-    }
-    
-    /* Form text improvements */
-    .form-text {
-      color: #bbb;
-      font-size: 0.875rem;
-      margin-top: 0.25rem;
-    }
-    
-    /* File preview styling */
-    .file-preview {
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
-      color: #ccc;
-    }
-    
-    .file-preview ul {
-      margin: 0;
-      padding-left: 1rem;
-      list-style-type: none;
-    }
-    
-    .file-preview li {
-      padding: 0.25rem 0;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    
-    .file-preview li:last-child {
-      border-bottom: none;
-    }
-    
-    /* Responsive improvements */
-    @media (max-width: 768px) {
-      .step-card {
-        padding: 1.5rem;
-      }
-      
-      .step-title {
-        font-size: 1.1rem;
-      }
-      
-      .step-number {
-        width: 30px;
-        height: 30px;
-        font-size: 1rem;
-      }
-      
-      .btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-      }
-    }
-    
-    @media (max-width: 575px) {
-      .step-card {
-        padding: 1rem;
-      }
-      
-      .form-card {
-        padding: 1.5rem;
-      }
-    }
-  </style>
 </head>
 <body>
   {% include 'navbar.html' %}
-  
+
   <header class="masthead">
-    <div class="container px-4 px-lg-5">
-      <div class="form-card">
-        {% if current_language == 'ar' %}
-          <h2 class="text-center mb-4" style="color: var(--text-primary);"><i class="bi-credit-card"></i> نموذج طلب قرض</h2>
-          <p class="text-center mb-4" style="color: var(--text-secondary); font-weight: 500;">املأ جميع المعلومات وأرفق المستندات المطلوبة</p>
-        {% elif current_language == 'en' %}
-          <h2 class="text-center mb-4" style="color: var(--text-primary);"><i class="bi-credit-card"></i> Credit Request Form</h2>
-          <p class="text-center mb-4" style="color: var(--text-secondary); font-weight: 500;">Fill in all information and attach required documents</p>
-        {% else %}
-          <h2 class="text-center mb-4" style="color: var(--text-primary);"><i class="bi-credit-card"></i> Formulaire de demande de crédit</h2>
-          <p class="text-center mb-4" style="color: var(--text-secondary); font-weight: 500;">Remplissez toutes les informations et joignez les pièces justificatives demandées</p>
-        {% endif %}
-        
-        <!-- Steps Navigation -->
-        <div class="steps-nav mb-4">
-          <div class="step-item active" id="nav-step-1">
-            <div class="step-circle">1</div>
-            <span class="step-label">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="text-center mb-4">
+            <h2 class="text-white mb-3">
+              <i class="bi-credit-card-2-front"></i>
               {% if current_language == 'ar' %}
-                المعلومات الشخصية
+                طلب ائتمان
               {% elif current_language == 'en' %}
-                Personal Information
+                Credit Application
               {% else %}
-                Informations personnelles
+                Demande de Crédit
               {% endif %}
-            </span>
-          </div>
-          <div class="step-item" id="nav-step-2">
-            <div class="step-circle">2</div>
-            <span class="step-label">
+            </h2>
+            <p class="text-white-75">
               {% if current_language == 'ar' %}
-                الوضع المالي
+                املأ النموذج أدناه وسيقوم نظام الذكاء الاصطناعي بتحليل طلبك تلقائياً
               {% elif current_language == 'en' %}
-                Financial Situation
+                Fill out the form below and our AI system will automatically analyze your application
               {% else %}
-                Situation financière
+                Remplissez le formulaire ci-dessous et notre IA analysera automatiquement votre demande
               {% endif %}
-            </span>
+            </p>
           </div>
-          <div class="step-item" id="nav-step-3">
-            <div class="step-circle">3</div>
-            <span class="step-label">
-              {% if current_language == 'ar' %}
-                المستندات
-              {% elif current_language == 'en' %}
-                Documents
-              {% else %}
-                Justificatifs
-              {% endif %}
-            </span>
-          </div>
-        </div>
-        <!-- Messages -->
-        {% if success %}
-        <div class="prediction-result {% if 'pré-approuvée' in success %}prediction-approved{% else %}prediction-rejected{% endif %}">
-          <div class="d-flex align-items-center mb-2">
-            <span class="prediction-icon">{% if 'pré-approuvée' in success %}🎉{% else %}📋{% endif %}</span>
-            <h4 class="mb-0">{% if 'pré-approuvée' in success %}Pré-approbation automatique{% else %}Demande enregistrée{% endif %}</h4>
-          </div>
-          <div style="white-space: pre-line;">{{ success }}</div>
-        </div>
-        {% endif %}
-        
-        {% if error %}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          {{ error }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endif %}
 
-<form id="creditForm" method="POST" action="/demande_credit" enctype="multipart/form-data" novalidate>
-
-          <!-- Step 1: Personal Information -->
-          <div class="step-card" id="step1">
-            <div class="step-title">
+          <!-- Progress Steps -->
+          <div class="progress-steps mb-4">
+            <div class="step active" id="nav-step-1">
               <span class="step-number">1</span>
-              {% if current_language == 'ar' %}
-                المعلومات الشخصية
-              {% elif current_language == 'en' %}
-                Personal Information
-              {% else %}
-                Informations personnelles
-              {% endif %}
+              <span class="step-title">
+                {% if current_language == 'ar' %}معلومات شخصية{% elif current_language == 'en' %}Personal Info{% else %}Infos Personnelles{% endif %}
+              </span>
             </div>
-
-            <div class="row">
-              <div class="col-md-4 mb-3">
-                <div class="form-group-icon">
-                  {% if current_language == 'ar' %}
-                    <label>الاسم الأخير <span class="required">*</span></label>
-                    <input type="text" class="form-control" name="nom" required maxlength="100" placeholder="اسم العائلة">
-                  {% elif current_language == 'en' %}
-                    <label>Last Name <span class="required">*</span></label>
-                    <input type="text" class="form-control" name="nom" required maxlength="100" placeholder="Family name">
-                  {% else %}
-                    <label>Nom <span class="required">*</span></label>
-                    <input type="text" class="form-control" name="nom" required maxlength="100" placeholder="Nom de famille">
-                  {% endif %}
-                  <i class="bi bi-person-badge input-icon"></i>
-                </div>
-              </div>
-
-              <div class="col-md-4 mb-3">
-                <div class="form-group-icon">
-                  {% if current_language == 'ar' %}
-                    <label>الاسم الأول <span class="required">*</span></label>
-                    <input type="text" class="form-control" name="prenom" required maxlength="100" placeholder="الاسم الأول">
-                  {% elif current_language == 'en' %}
-                    <label>First Name <span class="required">*</span></label>
-                    <input type="text" class="form-control" name="prenom" required maxlength="100" placeholder="First name">
-                  {% else %}
-                    <label>Prénom <span class="required">*</span></label>
-                    <input type="text" class="form-control" name="prenom" required maxlength="100" placeholder="Prénom">
-                  {% endif %}
-                  <i class="bi bi-person input-icon"></i>
-                </div>
-              </div>
-
-              <div class="col-md-4 mb-3">
-                <div class="form-group-icon">
-                  {% if current_language == 'ar' %}
-                    <label>تاريخ الميلاد <span class="required">*</span></label>
-                  {% elif current_language == 'en' %}
-                    <label>Date of Birth <span class="required">*</span></label>
-                  {% else %}
-                    <label>Date de naissance <span class="required">*</span></label>
-                  {% endif %}
-                  <input type="date" class="form-control" name="date_naissance" required>
-                  <i class="bi bi-calendar-date input-icon"></i>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-4 mb-3">
-                <div class="form-group-icon">
-                  {% if current_language == 'ar' %}
-                    <label>مكان الميلاد</label>
-                    <input type="text" class="form-control" name="lieu_naissance" maxlength="100" placeholder="المدينة، البلد">
-                  {% elif current_language == 'en' %}
-                    <label>Place of birth</label>
-                    <input type="text" class="form-control" name="lieu_naissance" maxlength="100" placeholder="City, Country">
-                  {% else %}
-                    <label>Lieu de naissance</label>
-                    <input type="text" class="form-control" name="lieu_naissance" maxlength="100" placeholder="Ville, Pays">
-                  {% endif %}
-                  <i class="bi bi-geo-alt input-icon"></i>
-                </div>
-              </div>
-
-              <div class="col-md-4 mb-3">
-                <div class="form-group-icon">
-                  {% if current_language == 'ar' %}
-                    <label>رقم بطاقة الهوية / جواز السفر <span class="required">*</span></label>
-                    <input type="text" class="form-control" name="document_id" required maxlength="30" placeholder="مثال: 01234567">
-                  {% elif current_language == 'en' %}
-                    <label>ID Number / Passport <span class="required">*</span></label>
-                    <input type="text" class="form-control" name="document_id" required maxlength="30" placeholder="Ex: 01234567">
-                  {% else %}
-                    <label>Numéro CIN / Passeport <span class="required">*</span></label>
-                    <input type="text" class="form-control" name="document_id" required maxlength="30" placeholder="Ex: 01234567">
-                  {% endif %}
-                  <i class="bi bi-card-text input-icon"></i>
-                </div>
-              </div>
-
-              <div class="col-md-4 mb-3">
-                <div class="form-group-icon">
-                  {% if current_language == 'ar' %}
-                    <label>الجنسية</label>
-                    <input type="text" class="form-control" name="nationalite" maxlength="50" placeholder="تونسية">
-                  {% elif current_language == 'en' %}
-                    <label>Nationality</label>
-                    <input type="text" class="form-control" name="nationalite" maxlength="50" placeholder="Tunisian">
-                  {% else %}
-                    <label>Nationalité</label>
-                    <input type="text" class="form-control" name="nationalite" maxlength="50" placeholder="Tunisienne">
-                  {% endif %}
-                  <i class="bi bi-flag input-icon"></i>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-12 mb-3">
-                <div class="form-group-icon">
-                  {% if current_language == 'ar' %}
-                    <label>العنوان الكامل <span class="required">*</span></label>
-                    <input type="text" class="form-control" name="adresse" required placeholder="الشارع، المدينة، الرمز البريدي">
-                    <i class="bi bi-house input-icon"></i>
-                    <small class="form-text">مطلوب إثبات السكن (فاتورة STEG/SONEDE، إلخ)</small>
-                  {% elif current_language == 'en' %}
-                    <label>Complete Address <span class="required">*</span></label>
-                    <input type="text" class="form-control" name="adresse" required placeholder="Street, city, postal code">
-                    <i class="bi bi-house input-icon"></i>
-                    <small class="form-text">Proof of residence required (STEG/SONEDE bill, etc.)</small>
-                  {% else %}
-                    <label>Adresse complète <span class="required">*</span></label>
-                    <input type="text" class="form-control" name="adresse" required placeholder="Rue, ville, code postal">
-                    <i class="bi bi-house input-icon"></i>
-                    <small class="form-text">Justificatif de domicile requis (facture STEG/SONEDE, etc.)</small>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-            
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <div class="form-group-icon">
-                  {% if current_language == 'ar' %}
-                    <label>رقم الهاتف <span class="required">*</span></label>
-                    <input type="tel" class="form-control" name="telephone" required pattern="[0-9+()\-\s]{6,20}" placeholder="+216 XX XXX XXX">
-                  {% elif current_language == 'en' %}
-                    <label>Phone <span class="required">*</span></label>
-                    <input type="tel" class="form-control" name="telephone" required pattern="[0-9+()\-\s]{6,20}" placeholder="+216 XX XXX XXX">
-                  {% else %}
-                    <label>Téléphone <span class="required">*</span></label>
-                    <input type="tel" class="form-control" name="telephone" required pattern="[0-9+()\-\s]{6,20}" placeholder="+216 XX XXX XXX">
-                  {% endif %}
-                  <i class="bi bi-telephone input-icon"></i>
-                </div>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <div class="form-group-icon">
-                  {% if current_language == 'ar' %}
-                    <label>البريد الإلكتروني</label>
-                    <input type="email" class="form-control" name="email" placeholder="exemple@domaine.tn">
-                  {% elif current_language == 'en' %}
-                    <label>Email</label>
-                    <input type="email" class="form-control" name="email" placeholder="exemple@domaine.tn">
-                  {% else %}
-                    <label>Email</label>
-                    <input type="email" class="form-control" name="email" placeholder="exemple@domaine.tn">
-                  {% endif %}
-                  <i class="bi bi-envelope input-icon"></i>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <div class="form-group-icon">
-                  {% if current_language == 'ar' %}
-                    <label>الحالة العائلية</label>
-                    <select class="form-control" name="situation_familiale">
-                      <option value="">--اختر--</option>
-                      <option>أعزب</option>
-                      <option>متزوج</option>
-                      <option>مطلق</option>
-                      <option>أرمل</option>
-                    </select>
-                  {% elif current_language == 'en' %}
-                    <label>Marital Status</label>
-                    <select class="form-control" name="situation_familiale">
-                      <option value="">--Select--</option>
-                      <option>Single</option>
-                      <option>Married</option>
-                      <option>Divorced</option>
-                      <option>Widowed</option>
-                    </select>
-                  {% else %}
-                    <label>Situation familiale</label>
-                    <select class="form-control" name="situation_familiale">
-                      <option value="">--Sélectionner--</option>
-                      <option>Célibataire</option>
-                      <option>Marié(e)</option>
-                      <option>Divorcé(e)</option>
-                      <option>Veuf/Veuve</option>
-                    </select>
-                  {% endif %}
-                  <i class="bi bi-heart input-icon"></i>
-                </div>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <div class="form-group-icon">
-                  {% if current_language == 'ar' %}
-                    <label>عدد الأطفال</label>
-                  {% elif current_language == 'en' %}
-                    <label>Number of children</label>
-                  {% else %}
-                    <label>Nombre d'enfants</label>
-                  {% endif %}
-                  <input type="number" class="form-control" name="enfants" min="0" max="20" value="0">
-                  <i class="bi bi-people input-icon"></i>
-                </div>
-              </div>
-            </div>
-            <div class="step-navigation">
-              <div></div>
-              <button type="button" class="btn btn-primary btn-continue" onclick="nextStep(1)">
-                {% if current_language == 'ar' %}
-                  متابعة
-                {% elif current_language == 'en' %}
-                  Continue
-                {% else %}
-                  Continuer
-                {% endif %}
-              </button>
-            </div>
-          </div>
-
-          <!-- Step 2: Professional Information -->
-          <div class="step-card hidden" id="step2">
-            <div class="step-title">
+            <div class="step" id="nav-step-2">
               <span class="step-number">2</span>
-              {% if current_language == 'ar' %}
-                المعلومات المهنية
-              {% elif current_language == 'en' %}
-                Professional Information
-              {% else %}
-                Informations professionnelles
-              {% endif %}
+              <span class="step-title">
+                {% if current_language == 'ar' %}معلومات مالية{% elif current_language == 'en' %}Financial Info{% else %}Infos Financières{% endif %}
+              </span>
             </div>
-
-            <div class="row">
-              <div class="col-md-4 mb-3">
-                <label>Profession / Poste</label>
-                <input type="text" class="form-control" name="profession" maxlength="100">
-              </div>
-
-              <div class="col-md-4 mb-3">
-                <label>Nom de l'employeur</label>
-                <input type="text" class="form-control" name="employeur" maxlength="150">
-              </div>
-
-              <div class="col-md-4 mb-3">
-                <label>Secteur d'activité</label>
-                <input type="text" class="form-control" name="secteur" maxlength="100">
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label>Type de contrat</label>
-                <select class="form-control" name="type_contrat">
-                  <option value="">--Sélectionner--</option>
-                  <option>CDI</option>
-                  <option>CDD</option>
-                  <option>Indépendant / Freelance</option>
-                  <option>Retraité</option>
-                  <option>Autre</option>
-                </select>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label>Ancienneté (années)</label>
-                <input type="number" class="form-control" name="anciennete" min="0" max="60">
-              </div>
-            </div>
-            
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label>Revenu mensuel net (TND) <span class="required">*</span></label>
-                <input type="number" step="0.01" class="form-control" name="revenu" required min="0">
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label>Autres revenus</label>
-                <input type="number" step="0.01" class="form-control" name="autres_revenus" min="0" placeholder="loyers, pension...">
-              </div>
-            </div>
-            <div class="step-navigation">
-              <button type="button" class="btn btn-outline-secondary" onclick="prevStep(2)"><i class="bi-arrow-left"></i> {% if current_language == 'ar' %}السابق{% elif current_language == 'en' %}Previous{% else %}Précédent{% endif %}</button>
-              <button type="button" class="btn btn-primary" onclick="nextStep(2)">{% if current_language == 'ar' %}التالي{% elif current_language == 'en' %}Next{% else %}Suivant{% endif %} <i class="bi-arrow-right"></i></button>
-            </div>
-          </div>
-
-          <!-- Step 3: Financial Information -->
-          <div class="step-card hidden" id="step3">
-            <div class="step-title">
+            <div class="step" id="nav-step-3">
               <span class="step-number">3</span>
-              {% if current_language == 'ar' %}
-                المعلومات المالية
-              {% elif current_language == 'en' %}
-                Financial Information
-              {% else %}
-                Informations financières
-              {% endif %}
-            </div>
-
-            <div class="row">
-              <div class="col-md-4 mb-3">
-                <label>Revenu mensuel du ménage (TND)</label>
-                <input type="number" step="0.01" class="form-control" name="revenu_menage" min="0">
-              </div>
-
-              <div class="col-md-4 mb-3">
-                <label>Dépenses mensuelles fixes (TND)</label>
-                <input type="number" step="0.01" class="form-control" name="depenses" min="0" placeholder="loyer, charges, autres crédits">
-              </div>
-
-              <div class="col-md-4 mb-3">
-                <label>Crédits en cours (mensualités totales TND)</label>
-                <input type="number" step="0.01" class="form-control" name="credits_en_cours" min="0">
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label>Comptes bancaires (banque principale)</label>
-                <input type="text" class="form-control" name="compte_banque" maxlength="150" placeholder="Nom de la banque, IBAN si applicable">
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label>Épargne / Patrimoine (biens notables)</label>
-                <input type="text" class="form-control" name="epargne" maxlength="250" placeholder="Immeuble, véhicule, etc.">
-              </div>
-            </div>
-            <div class="step-navigation">
-              <button type="button" class="btn btn-outline-secondary" onclick="prevStep(3)"><i class="bi-arrow-left"></i> {% if current_language == 'ar' %}السابق{% elif current_language == 'en' %}Previous{% else %}Précédent{% endif %}</button>
-              <button type="button" class="btn btn-primary" onclick="nextStep(3)">{% if current_language == 'ar' %}التالي{% elif current_language == 'en' %}Next{% else %}Suivant{% endif %} <i class="bi-arrow-right"></i></button>
+              <span class="step-title">
+                {% if current_language == 'ar' %}مراجعة وإرسال{% elif current_language == 'en' %}Review & Submit{% else %}Révision & Envoi{% endif %}
+              </span>
             </div>
           </div>
 
-          <!-- Step 4: Credit Details -->
-          <div class="step-card hidden" id="step4">
-            <div class="step-title">
-              <span class="step-number">4</span>
-              {% if current_language == 'ar' %}
-                تفاصيل القرض المطلوب
-              {% elif current_language == 'en' %}
-                Credit Details
-              {% else %}
-                Détails du crédit demandé
-              {% endif %}
+          <!-- Success/Error Messages -->
+          {% if success %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <i class="bi-check-circle-fill"></i>
+              {{ success }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
+          {% endif %}
 
-            <div class="row">
-              <div class="col-md-4 mb-3">
-                <label>Type de crédit <span class="required">*</span></label>
-                <select class="form-control" name="type_credit" required>
-                  <option value="">--Sélectionner--</option>
-                  <option>Crédit consommation</option>
-                  <option>Crédit immobilier</option>
-                  <option>Crédit auto</option>
-                  <option>Crédit personnel</option>
-                  <option>Regroupement de crédits</option>
-                </select>
-              </div>
-
-              <div class="col-md-4 mb-3">
-                <label>Montant demandé (TND) <span class="required">*</span></label>
-                <input type="number" class="form-control" name="montant" required min="0" step="0.01">
-              </div>
-
-              <div class="col-md-4 mb-3">
-                <label>Durée souhaitée (mois) <span class="required">*</span></label>
-                <input type="number" class="form-control" name="duree" required min="1" max="480">
-              </div>
+          {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <i class="bi-exclamation-triangle-fill"></i>
+              {{ error }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
+          {% endif %}
 
-            <div class="row">
-              <div class="col-md-12 mb-3">
-                <label>Objet du crédit</label>
-                <textarea class="form-control" name="objet" rows="3" maxlength="500" placeholder="Ex: Achat voiture, Travaux, Achat immobilier..."></textarea>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-12 mb-3">
-                <label>Garanties proposées</label>
-                <input type="text" class="form-control" name="garanties" maxlength="300" placeholder="Ex: hypothèque, caution, domiciliation salaire...">
-              </div>
-            </div>
-            <div class="step-navigation">
-              <button type="button" class="btn btn-outline-secondary" onclick="prevStep(4)"><i class="bi-arrow-left"></i> {% if current_language == 'ar' %}السابق{% elif current_language == 'en' %}Previous{% else %}Précédent{% endif %}</button>
-              <button type="button" class="btn btn-primary" onclick="nextStep(4)">{% if current_language == 'ar' %}التالي{% elif current_language == 'en' %}Next{% else %}Suivant{% endif %} <i class="bi-arrow-right"></i></button>
-            </div>
-          </div>
-
-          <!-- Step 5: Documents -->
-          <div class="step-card hidden" id="step5">
-            <div class="step-title">
-              <span class="step-number">5</span>
-              {% if current_language == 'ar' %}
-                المستندات المطلوبة
-              {% elif current_language == 'en' %}
-                Required Documents
-              {% else %}
-                Pièces justificatives
-              {% endif %}
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label>Copie CIN / Passeport <span class="required">*</span></label>
-                <input type="file" class="form-control" name="file_id" accept="image/*,.pdf" required>
-                <div class="file-preview" id="preview_id"></div>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label>Justificatif de domicile <span class="required">*</span></label>
-                <input type="file" class="form-control" name="file_domicile" accept="image/*,.pdf" required>
-                <div class="file-preview" id="preview_domicile"></div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label>Bulletins de salaire / Preuves de revenu (3 derniers mois) <span class="required">*</span></label>
-                <input type="file" class="form-control" name="file_revenus" accept="application/pdf,image/*" required multiple>
-                <div class="file-preview" id="preview_revenus"></div>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label>Relevés bancaires récents (3 derniers mois)</label>
-                <input type="file" class="form-control" name="file_releves" accept="application/pdf,image/*" multiple>
-                <div class="file-preview" id="preview_releves"></div>
-              </div>
-            </div>
-
-            <small class="form-text">Format accepté : PDF, JPG, PNG. Taille maximum recommandée par fichier : 10MB.</small>
-          </div>
-
-            <!-- Consent -->
-            <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="consent" required>
-              {% if current_language == 'ar' %}
-                <label class="form-check-label" for="consent">أوافق على قيام البنك بالتحقق من المعلومات المقدمة وإجراء فحوصات ائتمانية. <span class="required">*</span></label>
-              {% elif current_language == 'en' %}
-                <label class="form-check-label" for="consent">I authorize the bank to verify the information provided and perform credit checks. <span class="required">*</span></label>
-              {% else %}
-                <label class="form-check-label" for="consent">J'autorise la banque à vérifier les informations fournies et à effectuer des vérifications de crédit. <span class="required">*</span></label>
-              {% endif %}
-            </div>
-
-            <div class="step-navigation">
-              <button type="button" class="btn btn-outline-secondary" onclick="prevStep(5)"><i class="bi-arrow-left"></i> {% if current_language == 'ar' %}السابق{% elif current_language == 'en' %}Previous{% else %}Précédent{% endif %}</button>
-              <button type="submit" class="btn btn-success" id="submitBtn">{% if current_language == 'ar' %}إرسال الطلب{% elif current_language == 'en' %}Submit Request{% else %}Soumettre la demande{% endif %} <i class="bi-check-circle"></i></button>
-            </div>
+          <!-- Form -->
+          <form id="creditForm" method="POST" action="/demande_credit" novalidate>
             
-            <div class="mt-3 text-center">
-              <small class="text-white-75">
-                <i class="bi-robot"></i> 
-                {% if current_language == 'ar' %}
-                  سيتم تحليل طلبك تلقائياً بواسطة الذكاء الاصطناعي
-                {% elif current_language == 'en' %}
-                  Your request will be automatically analyzed by AI
-                {% else %}
-                  Votre demande sera analysée automatiquement par IA
-                {% endif %}
-              </small>
+            <!-- Step 1: Personal Information -->
+            <div class="step-card" id="step1">
+              <div class="step-header">
+                <h4><i class="bi-person-circle"></i> 
+                  {% if current_language == 'ar' %}
+                    المعلومات الشخصية
+                  {% elif current_language == 'en' %}
+                    Personal Information
+                  {% else %}
+                    Informations Personnelles
+                  {% endif %}
+                </h4>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">
+                    <i class="bi-person"></i>
+                    {% if current_language == 'ar' %}
+                      الاسم الكامل <span class="required">*</span>
+                    {% elif current_language == 'en' %}
+                      Full Name <span class="required">*</span>
+                    {% else %}
+                      Nom complet <span class="required">*</span>
+                    {% endif %}
+                  </label>
+                  <input type="text" class="form-control" name="Name" required placeholder="Prénom Nom">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">
+                    <i class="bi-calendar-date"></i>
+                    {% if current_language == 'ar' %}
+                      العمر <span class="required">*</span>
+                    {% elif current_language == 'en' %}
+                      Age <span class="required">*</span>
+                    {% else %}
+                      Âge <span class="required">*</span>
+                    {% endif %}
+                  </label>
+                  <input type="number" class="form-control" name="Age" min="18" max="80" required>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">
+                    <i class="bi-card-text"></i>
+                    {% if current_language == 'ar' %}
+                      رقم الهوية الوطنية <span class="required">*</span>
+                    {% elif current_language == 'en' %}
+                      Social Security Number <span class="required">*</span>
+                    {% else %}
+                      Numéro de Sécurité Sociale <span class="required">*</span>
+                    {% endif %}
+                  </label>
+                  <input type="text" class="form-control" name="SSN" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">
+                    <i class="bi-briefcase"></i>
+                    {% if current_language == 'ar' %}
+                      المهنة <span class="required">*</span>
+                    {% elif current_language == 'en' %}
+                      Occupation <span class="required">*</span>
+                    {% else %}
+                      Profession <span class="required">*</span>
+                    {% endif %}
+                  </label>
+                  <select class="form-control" name="Occupation" required>
+                    <option value="">{% if current_language == 'ar' %}اختر المهنة...{% elif current_language == 'en' %}Choose occupation...{% else %}Choisir la profession...{% endif %}</option>
+                    <option value="Engineer">{% if current_language == 'ar' %}مهندس{% elif current_language == 'en' %}Engineer{% else %}Ingénieur{% endif %}</option>
+                    <option value="Teacher">{% if current_language == 'ar' %}معلم{% elif current_language == 'en' %}Teacher{% else %}Enseignant{% endif %}</option>
+                    <option value="Doctor">{% if current_language == 'ar' %}طبيب{% elif current_language == 'en' %}Doctor{% else %}Médecin{% endif %}</option>
+                    <option value="Lawyer">{% if current_language == 'ar' %}محامي{% elif current_language == 'en' %}Lawyer{% else %}Avocat{% endif %}</option>
+                    <option value="Manager">{% if current_language == 'ar' %}مدير{% elif current_language == 'en' %}Manager{% else %}Directeur{% endif %}</option>
+                    <option value="Accountant">{% if current_language == 'ar' %}محاسب{% elif current_language == 'en' %}Accountant{% else %}Comptable{% endif %}</option>
+                    <option value="Developer">{% if current_language == 'ar' %}مطور{% elif current_language == 'en' %}Developer{% else %}Développeur{% endif %}</option>
+                    <option value="Other">{% if current_language == 'ar' %}أخرى{% elif current_language == 'en' %}Other{% else %}Autre{% endif %}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="step-navigation">
+                <button type="button" class="btn btn-primary" onclick="nextStep(1)">
+                  {% if current_language == 'ar' %}التالي{% elif current_language == 'en' %}Next{% else %}Continuer{% endif %} 
+                  <i class="bi-arrow-right"></i>
+                </button>
+              </div>
             </div>
-          </div>
 
-        </form>
+            <!-- Step 2: Financial Information -->
+            <div class="step-card hidden" id="step2">
+              <div class="step-header">
+                <h4><i class="bi-cash-stack"></i> 
+                  {% if current_language == 'ar' %}
+                    المعلومات المالية
+                  {% elif current_language == 'en' %}
+                    Financial Information
+                  {% else %}
+                    Informations Financières
+                  {% endif %}
+                </h4>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">
+                    <i class="bi-currency-dollar"></i>
+                    {% if current_language == 'ar' %}
+                      الدخل السنوي <span class="required">*</span>
+                    {% elif current_language == 'en' %}
+                      Annual Income <span class="required">*</span>
+                    {% else %}
+                      Revenu annuel <span class="required">*</span>
+                    {% endif %}
+                  </label>
+                  <input type="number" class="form-control" name="Annual_Income" min="0" step="1000" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">
+                    <i class="bi-wallet2"></i>
+                    {% if current_language == 'ar' %}
+                      الراتب الشهري الصافي <span class="required">*</span>
+                    {% elif current_language == 'en' %}
+                      Monthly Net Salary <span class="required">*</span>
+                    {% else %}
+                      Salaire mensuel net <span class="required">*</span>
+                    {% endif %}
+                  </label>
+                  <input type="number" class="form-control" name="Monthly_Inhand_Salary" min="0" step="100" required>
+                </div>
+              </div>
 
-        <div class="mt-3" id="result" style="display:none"></div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">
+                    <i class="bi-bank"></i>
+                    {% if current_language == 'ar' %}
+                      عدد الحسابات المصرفية
+                    {% elif current_language == 'en' %}
+                      Number of Bank Accounts
+                    {% else %}
+                      Nombre de comptes bancaires
+                    {% endif %}
+                  </label>
+                  <input type="number" class="form-control" name="Num_Bank_Accounts" min="0" max="10" value="1">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">
+                    <i class="bi-credit-card"></i>
+                    {% if current_language == 'ar' %}
+                      عدد بطاقات الائتمان
+                    {% elif current_language == 'en' %}
+                      Number of Credit Cards
+                    {% else %}
+                      Nombre de cartes de crédit
+                    {% endif %}
+                  </label>
+                  <input type="number" class="form-control" name="Num_Credit_Card" min="0" max="10" value="0">
+                </div>
+              </div>
 
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">
+                    <i class="bi-list-ol"></i>
+                    {% if current_language == 'ar' %}
+                      عدد القروض الحالية
+                    {% elif current_language == 'en' %}
+                      Number of Current Loans
+                    {% else %}
+                      Nombre de prêts en cours
+                    {% endif %}
+                  </label>
+                  <input type="number" class="form-control" name="Num_of_Loan" min="0" max="10" value="0">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">
+                    <i class="bi-house-door"></i>
+                    {% if current_language == 'ar' %}
+                      نوع القرض
+                    {% elif current_language == 'en' %}
+                      Type of Loan
+                    {% else %}
+                      Type de prêt
+                    {% endif %}
+                  </label>
+                  <select class="form-control" name="Type_of_Loan">
+                    <option value="Not Specified">{% if current_language == 'ar' %}غير محدد{% elif current_language == 'en' %}Not Specified{% else %}Non spécifié{% endif %}</option>
+                    <option value="Auto Loan">{% if current_language == 'ar' %}قرض سيارة{% elif current_language == 'en' %}Auto Loan{% else %}Prêt automobile{% endif %}</option>
+                    <option value="Personal Loan">{% if current_language == 'ar' %}قرض شخصي{% elif current_language == 'en' %}Personal Loan{% else %}Prêt personnel{% endif %}</option>
+                    <option value="Mortgage Loan">{% if current_language == 'ar' %}قرض عقاري{% elif current_language == 'en' %}Mortgage Loan{% else %}Prêt hypothécaire{% endif %}</option>
+                    <option value="Student Loan">{% if current_language == 'ar' %}قرض طلابي{% elif current_language == 'en' %}Student Loan{% else %}Prêt étudiant{% endif %}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <label class="form-label">
+                    <i class="bi-graph-up"></i>
+                    {% if current_language == 'ar' %}
+                      المبلغ المستثمر شهرياً
+                    {% elif current_language == 'en' %}
+                      Monthly Investment Amount
+                    {% else %}
+                      Montant investi mensuellement
+                    {% endif %}
+                  </label>
+                  <input type="number" class="form-control" name="Amount_invested_monthly" min="0" step="50" value="0">
+                </div>
+              </div>
+
+              <div class="step-navigation">
+                <button type="button" class="btn btn-outline-secondary" onclick="prevStep(2)">
+                  <i class="bi-arrow-left"></i> 
+                  {% if current_language == 'ar' %}السابق{% elif current_language == 'en' %}Previous{% else %}Précédent{% endif %}
+                </button>
+                <button type="button" class="btn btn-primary" onclick="nextStep(2)">
+                  {% if current_language == 'ar' %}التالي{% elif current_language == 'en' %}Next{% else %}Continuer{% endif %} 
+                  <i class="bi-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 3: Review & Submit -->
+            <div class="step-card hidden" id="step3">
+              <div class="step-header">
+                <h4><i class="bi-check-circle"></i> 
+                  {% if current_language == 'ar' %}
+                    مراجعة وإرسال
+                  {% elif current_language == 'en' %}
+                    Review & Submit
+                  {% else %}
+                    Révision et envoi
+                  {% endif %}
+                </h4>
+              </div>
+              
+              <div class="alert alert-info">
+                <i class="bi-robot"></i>
+                <strong>
+                  {% if current_language == 'ar' %}
+                    معلومة:
+                  {% elif current_language == 'en' %}
+                    Information:
+                  {% else %}
+                    Information :
+                  {% endif %}
+                </strong>
+                {% if current_language == 'ar' %}
+                  سيتم حساب نقاط الائتمان الخاصة بك تلقائياً بواسطة نظام الذكاء الاصطناعي بناءً على المعلومات المقدمة.
+                {% elif current_language == 'en' %}
+                  Your credit score will be calculated automatically by our AI system based on the information provided.
+                {% else %}
+                  Votre score de crédit sera calculé automatiquement par notre système d'IA basé sur les informations fournies.
+                {% endif %}
+              </div>
+
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="consent" required>
+                <label class="form-check-label" for="consent">
+                  {% if current_language == 'ar' %}
+                    أوافق على قيام البنك بالتحقق من المعلومات المقدمة وإجراء فحوصات ائتمانية. <span class="required">*</span>
+                  {% elif current_language == 'en' %}
+                    I authorize the bank to verify the information provided and perform credit checks. <span class="required">*</span>
+                  {% else %}
+                    J'autorise la banque à vérifier les informations fournies et à effectuer des vérifications de crédit. <span class="required">*</span>
+                  {% endif %}
+                </label>
+              </div>
+
+              <div class="step-navigation">
+                <button type="button" class="btn btn-outline-secondary" onclick="prevStep(3)">
+                  <i class="bi-arrow-left"></i> 
+                  {% if current_language == 'ar' %}السابق{% elif current_language == 'en' %}Previous{% else %}Précédent{% endif %}
+                </button>
+                <button type="submit" class="btn btn-success" id="submitBtn">
+                  {% if current_language == 'ar' %}
+                    إرسال الطلب
+                  {% elif current_language == 'en' %}
+                    Submit Application
+                  {% else %}
+                    Soumettre la demande
+                  {% endif %}
+                  <i class="bi-check-circle"></i>
+                </button>
+              </div>
+              
+              <div class="mt-3 text-center">
+                <small class="text-muted">
+                  <i class="bi-robot"></i> 
+                  {% if current_language == 'ar' %}
+                    سيتم تحليل طلبك تلقائياً بواسطة الذكاء الاصطناعي
+                  {% elif current_language == 'en' %}
+                    Your application will be analyzed automatically by AI
+                  {% else %}
+                    Votre demande sera analysée automatiquement par IA
+                  {% endif %}
+                </small>
+              </div>
+            </div>
+
+          </form>
+
+          <div class="mt-3" id="result" style="display:none"></div>
+
+        </div>
       </div>
     </div>
   </header>
@@ -1042,13 +395,16 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     let currentStep = 1;
-    const totalSteps = 5;
-    
+    const totalSteps = 3;
+  
     // Step navigation functions
     function showStep(step) {
       // Hide all steps
       for(let i = 1; i <= totalSteps; i++) {
-        document.getElementById('step' + i).classList.add('hidden');
+        const stepElement = document.getElementById('step' + i);
+        if (stepElement) {
+          stepElement.classList.add('hidden');
+        }
         // Update step navigation indicators
         const navStep = document.getElementById('nav-step-' + i);
         if (navStep) {
@@ -1056,7 +412,10 @@
         }
       }
       // Show current step
-      document.getElementById('step' + step).classList.remove('hidden');
+      const currentStepElement = document.getElementById('step' + step);
+      if (currentStepElement) {
+        currentStepElement.classList.remove('hidden');
+      }
       
       // Update step navigation indicator
       const currentNavStep = document.getElementById('nav-step-' + step);
@@ -1069,99 +428,47 @@
     }
     
     function nextStep(step) {
-      // Validate current step before proceeding
-      if(validateStep(step)) {
+      if(step < totalSteps) {
         currentStep = step + 1;
         showStep(currentStep);
       }
     }
     
     function prevStep(step) {
-      currentStep = step - 1;
-      showStep(currentStep);
-    }
-    
-    function validateStep(step) {
-      const stepElement = document.getElementById('step' + step);
-      const requiredFields = stepElement.querySelectorAll('[required]');
-      let isValid = true;
-      
-      requiredFields.forEach(field => {
-        if(!field.value.trim()) {
-          field.classList.add('is-invalid');
-          isValid = false;
-        } else {
-          field.classList.remove('is-invalid');
-        }
-      });
-      
-      if(!isValid) {
-        alert('Please fill in all required fields before proceeding.');
+      if(step > 1) {
+        currentStep = step - 1;
+        showStep(currentStep);
       }
-      
-      return isValid;
-    }
-    
-    // File preview function
-    function showPreview(input, containerId){
-      const container = document.getElementById(containerId);
-      container.innerHTML = '';
-      if(!input.files || input.files.length===0) return;
-      const list = document.createElement('ul');
-      list.style.color = '#ccc';
-      for(const f of input.files){
-        const li = document.createElement('li');
-        li.textContent = f.name + ' (' + Math.round(f.size/1024) + ' KB)';
-        list.appendChild(li);
-      }
-      container.appendChild(list);
     }
 
-    // Initialize when page loads
+    // Form validation on submit
+    document.getElementById('creditForm').addEventListener('submit', function(e){
+      const form = e.target;
+      const submitBtn = document.getElementById('submitBtn');
+      
+      console.log('🚀 Soumission du formulaire');
+      
+      // Check consent checkbox
+      const consentCheckbox = document.getElementById('consent');
+      if(!consentCheckbox.checked) {
+        e.preventDefault();
+        alert('{% if current_language == "ar" %}يرجى قبول الشروط قبل إرسال طلبك.{% elif current_language == "en" %}Please accept the terms before submitting your application.{% else %}Veuillez accepter les conditions avant de soumettre votre demande.{% endif %}');
+        consentCheckbox.focus();
+        return;
+      }
+      
+      // Show loading state
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> {% if current_language == "ar" %}جاري التحليل...{% elif current_language == "en" %}Analyzing...{% else %}Analyse en cours...{% endif %}';
+      submitBtn.disabled = true;
+      
+      console.log('✅ Formulaire soumis avec succès');
+    });
+
+    // Initialize form
     document.addEventListener('DOMContentLoaded', function() {
       showStep(1);
-      
-      // Add file preview listeners
-      const fileInputs = document.querySelectorAll('input[type="file"]');
-      fileInputs.forEach(input => {
-        const previewId = 'preview_' + input.name.replace('file_', '');
-        input.addEventListener('change', e => showPreview(e.target, previewId));
-      });
-      
-      // Form validation on submit
-      document.getElementById('creditForm').addEventListener('submit', function(e){
-        const form = e.target;
-        const submitBtn = document.getElementById('submitBtn');
-        
-        if(!form.checkValidity()){
-          e.preventDefault();
-          form.classList.add('was-validated');
-          return;
-        }
-        
-        // Show loading state
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyse en cours...';
-        submitBtn.disabled = true;
-      });
-      
-      // Real-time validation
-      const inputs = document.querySelectorAll('input, select, textarea');
-      inputs.forEach(input => {
-        input.addEventListener('blur', function() {
-          if(this.hasAttribute('required') && !this.value.trim()) {
-            this.classList.add('is-invalid');
-          } else {
-            this.classList.remove('is-invalid');
-          }
-        });
-        
-        input.addEventListener('input', function() {
-          if(this.classList.contains('is-invalid') && this.value.trim()) {
-            this.classList.remove('is-invalid');
-          }
-        });
-      });
     });
   </script>
+
 </body>
 </html>

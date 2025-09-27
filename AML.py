@@ -19,6 +19,51 @@ def preprocess(name):
         name = arabic_to_latin(name)
     return name
 
+# 🔄 Vérification d'inversion de mots (prénom/nom)
+def check_word_inversion(input_name, target_name):
+    """Vérifie si les noms sont des inversions l'un de l'autre"""
+    input_words = input_name.split()
+    target_words = target_name.split()
+    
+    # Cas 1: Mots identiques dans un ordre différent
+    if len(input_words) == len(target_words) and set(input_words) == set(target_words):
+        return True
+    
+    # Cas 2: Deux mots - vérification croisée avec seuils ajustés
+    if len(input_words) == 2 and len(target_words) == 2:
+        # Ordre normal: input[0] vs target[0] et input[1] vs target[1]
+        normal_sim = (jellyfish.jaro_winkler_similarity(input_words[0], target_words[0]) + 
+                     jellyfish.jaro_winkler_similarity(input_words[1], target_words[1])) / 2
+        
+        # Ordre inversé: input[0] vs target[1] et input[1] vs target[0]
+        inverse_sim = (jellyfish.jaro_winkler_similarity(input_words[0], target_words[1]) + 
+                      jellyfish.jaro_winkler_similarity(input_words[1], target_words[0])) / 2
+        
+        # Seuil plus permissif pour les inversions (0.75 au lieu de 0.85)
+        max_similarity = max(normal_sim, inverse_sim)
+        
+        if max_similarity > 0.75:
+            print(f"🔄 Inversion détectée: similarité normale={normal_sim:.3f}, inversée={inverse_sim:.3f}")
+            return True
+    
+    # Cas 3: Vérification avec des mots partiellement similaires
+    if len(input_words) >= 2 and len(target_words) >= 2:
+        for i_word in input_words:
+            for t_word in target_words:
+                if jellyfish.jaro_winkler_similarity(i_word, t_word) > 0.85:
+                    # Si on trouve un mot très similaire, vérifier les autres
+                    remaining_input = [w for w in input_words if w != i_word]
+                    remaining_target = [w for w in target_words if w != t_word]
+                    
+                    if remaining_input and remaining_target:
+                        for ri_word in remaining_input:
+                            for rt_word in remaining_target:
+                                if jellyfish.jaro_winkler_similarity(ri_word, rt_word) > 0.75:
+                                    print(f"🔄 Correspondance partielle: '{i_word}' ≈ '{t_word}' et '{ri_word}' ≈ '{rt_word}'")
+                                    return True
+    
+    return False
+
 # 🔍 Comparaison avec les algorithmes de similarité
 def is_similar(input_name, target_name):
     input_proc = preprocess(input_name)
@@ -27,14 +72,24 @@ def is_similar(input_name, target_name):
     jaro = jellyfish.jaro_winkler_similarity(input_proc, target_proc)
     levenshtein = jellyfish.levenshtein_distance(input_proc, target_proc)
     soundex_match = jellyfish.soundex(input_proc) == jellyfish.soundex(target_proc)
+    
+    # Vérification d'inversion de mots
+    word_inversion = check_word_inversion(input_proc, target_proc)
 
-    print(f"🧪 Comparaison : '{input_proc}' vs '{target_proc}' | Jaro: {jaro:.3f} | Levenshtein: {levenshtein} | Soundex: {soundex_match}")
+    print(f"🧪 Comparaison : '{input_proc}' vs '{target_proc}' | Jaro: {jaro:.3f} | Levenshtein: {levenshtein} | Soundex: {soundex_match} | Inversion: {word_inversion}")
 
-    # Critères plus stricts pour éviter les faux positifs
-    is_match = jaro > 0.90 or levenshtein < 3 or soundex_match
+    # Critères ajustés pour une détection plus réaliste
+    name_length = min(len(input_proc), len(target_proc))
+    
+    if name_length < 8:
+        # Seuils plus permissifs pour les noms courts
+        is_match = jaro > 0.65 or levenshtein < 4 or soundex_match or word_inversion
+    else:
+        # Seuils standards pour les noms longs
+        is_match = jaro > 0.75 or levenshtein < 5 or soundex_match or word_inversion
     
     if is_match:
-        print(f"✅ MATCH trouvé: Jaro={jaro:.3f} | Levenshtein={levenshtein} | Soundex={soundex_match}")
+        print(f"✅ MATCH trouvé: Jaro={jaro:.3f} | Levenshtein={levenshtein} | Soundex={soundex_match} | Inversion={word_inversion}")
     
     return is_match
 

@@ -1,0 +1,68 @@
+/* 🎨 Options de Filtre Flou pour l'Image de Background */
+
+/* Option 1: Flou léger (2px) - Plus subtil */
+/*
+body::before {
+  filter: blur(2px);
+}
+*/
+
+/* Option 2: Flou moyen (3px) - Équilibré (ACTUEL) */
+body::before {
+  filter: blur(3px);
+}
+
+/* Option 3: Flou fort (5px) - Plus artistique */
+/*
+body::before {
+  filter: blur(5px);
+}
+*/
+
+/* Option 4: Flou très fort (8px) - Très doux */
+/*
+body::before {
+  filter: blur(8px);
+}
+*/
+
+/* Option 5: Flou + Luminosité */
+/*
+body::before {
+  filter: blur(3px) brightness(1.1);
+}
+*/
+
+/* Option 6: Flou + Contraste */
+/*
+body::before {
+  filter: blur(3px) contrast(0.9);
+}
+*/
+
+/* Option 7: Flou + Saturation réduite */
+/*
+body::before {
+  filter: blur(3px) saturate(0.8);
+}
+*/
+
+/* Option 8: Effet complet - Flou + Luminosité + Contraste */
+/*
+body::before {
+  filter: blur(4px) brightness(1.05) contrast(0.95) saturate(0.9);
+}
+*/
+
+/* 
+INSTRUCTIONS D'UTILISATION :
+1. Copiez l'option que vous préférez
+2. Remplacez le contenu de body::before dans styles.css
+3. Rechargez la page pour voir l'effet
+
+RECOMMANDATIONS :
+- blur(2px) : Pour garder les détails visibles
+- blur(3px) : Équilibre parfait (actuel)
+- blur(5px) : Pour un effet plus artistique
+- blur(8px) : Pour un fond très doux
+*/

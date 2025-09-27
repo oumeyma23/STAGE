@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="{{ current_language or 'fr' }}" {% if current_language == 'ar' %}dir="rtl"{% endif %}>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  {% if current_language == 'ar' %}
+    <title>نموذج طلب قرض - SecuriBank</title>
+  {% elif current_language == 'en' %}
+    <title>Credit Request Form - SecuriBank</title>
+  {% else %}
+    <title>Formulaire de demande de crédit - SecuriBank</title>
+  {% endif %}
+  <!-- Favicon-->
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon.ico') }}" />
+  <!-- Bootstrap Icons-->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <!-- Google fonts-->
+  <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:400,700" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic" rel="stylesheet" type="text/css" />
+  <!-- Core theme CSS (Bootstrap + custom) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <style>
+    html, body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      color: var(--text-primary);
+    }
+    
+    .masthead {
+      min-height: auto;
+      padding-top: 120px;
+      padding-bottom: 2rem;
+    }
+
+    .form-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 3rem;
+      border-radius: var(--border-radius-lg);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-heavy);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin: 0 auto 2rem auto;
+      max-width: 1000px;
+    }
+
+    .container {
+      padding-bottom: 2rem;
+    }
+    
+    .step-card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius-lg);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-medium);
+      transition: var(--transition);
+    }
+    
+    .step-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-heavy);
+      border-color: var(--primary-color);
+    }
+
+    .step-title {
+      color: var(--primary-color);
+      font-weight: 600;
+      font-size: 1.3em;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .step-number {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      color: white;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+      box-shadow: var(--shadow-light);
+    }
+
+    .form-group-icon {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group-icon .form-control {
+      padding-left: 3rem;
+    }
+
+    .form-group-icon .input-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      z-index: 10;
+      pointer-events: none;
+      transition: var(--transition);
+    }
+
+    .form-group-icon .form-control:focus ~ .input-icon,
+    .form-group-icon .form-control:not(:placeholder-shown) ~ .input-icon {
+      color: var(--primary-color);
+    }
+
+    .form-label {
+      color: #000000;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    label {
+      color: #000000 !important;
+      font-weight: 500;
+    }
+
+    /* Steps Navigation */
+    .steps-nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius);
+      backdrop-filter: blur(10px);
+    }
+
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      position: relative;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .step-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 15px;
+      right: -1.5rem;
+      width: 2rem;
+      height: 2px;
+      background: var(--border-color);
+      z-index: 1;
+    }
+
+    .step-item.active:not(:last-child)::after {
+      background: var(--primary-color);
+    }
+
+    .step-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--border-color);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: var(--transition);
+      z-index: 2;
+      position: relative;
+    }
+
+    .step-item.active .step-circle {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .step-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-align: center;
+      transition: var(--transition);
+    }
+
+    .step-item.active .step-label {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .steps-nav {
+        gap: 1rem;
+        padding: 0.75rem;
+      }
+      
+      .step-item:not(:last-child)::after {
+        right: -0.75rem;
+        width: 1rem;
+      }
+      
+      .step-label {
+        font-size: 0.7rem;
+        max-width: 60px;
+      }
+    }
+
+    /* Continue Button Styling */
+    .btn-continue {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: white;
+      box-shadow: var(--shadow-light);
+      transition: var(--transition);
+      text-transform: none;
+    }
+
+    .btn-continue:hover {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
+      color: white;
+    }
+
+    .step-navigation {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* Form text improvements */
+    .form-text {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      margin-top: 0.25rem;
+      font-style: italic;
+    }
+
+    /* Required field asterisk */
+    .required {
+      color: var(--danger-color);
+      font-weight: bold;
+    }
+
+    /* Step titles */
+    .step-title {
+      color: var(--text-primary) !important;
+    }
+    
+    .form-control:focus {
+      background-color: rgba(255,255,255,0.15);
+      border-color: #ff6600;
+      color: white;
+      box-shadow: 0 0 0 0.2rem rgba(255, 102, 0, 0.25);
+      transform: translateY(-1px);
+    }
+    
+    .form-control::placeholder {
+      color: rgba(255,255,255,0.6);
+    }
+    
+    label {
+      color: #e8e8e8;
+      font-weight: 500;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    
+    .form-row {
+      margin-bottom: 0.75rem;
+    }
+    
+    .form-row .form-group {
+      padding-right: 0.75rem;
+      padding-left: 0.75rem;
+    }
+    .required { color: #ff6600; }
+    .form-text { color: #ccc; }
+    .btn-primary, .btn-success {
+      background-color: #ff6600;
+      border: none;
+    }
+    .btn-primary:hover, .btn-success:hover {
+      background-color: #e05500;
+    }
+    
+    .prediction-result {
+      background: linear-gradient(135deg, rgba(255, 102, 0, 0.1), rgba(255, 102, 0, 0.05));
+      border: 2px solid rgba(255, 102, 0, 0.3);
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      color: white;
+    }
+    
+    .prediction-approved {
+      background: linear-gradient(135deg, rgba(40, 167, 69, 0.2), rgba(40, 167, 69, 0.1));
+      border-color: rgba(40, 167, 69, 0.5);
+    }
+    
+    .prediction-rejected {
+      background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(220, 53, 69, 0.1));
+      border-color: rgba(220, 53, 69, 0.5);
+    }
+    
+    .prediction-icon {
+      font-size: 2rem;
+      margin-right: 0.5rem;
+    }
+    .btn-outline-secondary {
+      border-color: rgba(255,255,255,0.5);
+      color: white;
+    }
+    .btn-outline-secondary:hover {
+      background-color: rgba(255,255,255,0.1);
+      border-color: white;
+      color: white;
+    }
+    
+    .step-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 2px solid rgba(255,255,255,0.15);
+    }
+    
+    .btn {
+      border-radius: 8px;
+      padding: 0.6rem 1.5rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: none;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .progress-bar {
+      background: linear-gradient(90deg, #ff6600, #e05500);
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .is-invalid {
+      border-color: #dc3545 !important;
+      background-color: rgba(220, 53, 69, 0.1) !important;
+    }
+    
+    .file-preview {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .file-preview ul {
+      margin: 0;
+      padding-left: 1rem;
+    }
+
+    /* File input styling */
+    input[type="file"].form-control {
+      padding: 0.5rem;
+      background-color: rgba(255,255,255,0.05);
+      border: 2px dashed rgba(255,255,255,0.3);
+      transition: all 0.3s ease;
+    }
+    
+    input[type="file"].form-control:hover {
+      border-color: rgba(255, 102, 0, 0.5);
+      background-color: rgba(255,255,255,0.08);
+    }
+    
+    input[type="file"].form-control:focus {
+      border-color: #ff6600;
+      border-style: solid;
+      background-color: rgba(255,255,255,0.1);
+    }
+    
+    /* Textarea styling */
+    textarea.form-control {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    /* Select styling */
+    select.form-control {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.75rem center;
+      background-repeat: no-repeat;
+      background-size: 16px 12px;
+    }
+    
+    /* Form text improvements */
+    .form-text {
+      color: #bbb;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+    
+    /* File preview styling */
+    .file-preview {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: #ccc;
+    }
+    
+    .file-preview ul {
+      margin: 0;
+      padding-left: 1rem;
+      list-style-type: none;
+    }
+    
+    .file-preview li {
+      padding: 0.25rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .file-preview li:last-child {
+      border-bottom: none;
+    }
+    
+    /* Responsive improvements */
+    @media (max-width: 768px) {
+      .step-card {
+        padding: 1.5rem;
+      }
+      
+      .step-title {
+        font-size: 1.1rem;
+      }
+      
+      .step-number {
+        width: 30px;
+        height: 30px;
+        font-size: 1rem;
+      }
+      
+      .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+    }
+    
+    @media (max-width: 575px) {
+      .step-card {
+        padding: 1rem;
+      }
+      
+      .form-card {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% include 'navbar.html' %}
+  
+  <header class="masthead">
+    <div class="container px-4 px-lg-5">
+      <div class="form-card">
+        {% if current_language == 'ar' %}
+          <h2 class="text-center mb-4" style="color: var(--text-primary);"><i class="bi-credit-card"></i> نموذج طلب قرض</h2>
+          <p class="text-center mb-4" style="color: var(--text-secondary); font-weight: 500;">املأ جميع المعلومات وأرفق المستندات المطلوبة</p>
+        {% elif current_language == 'en' %}
+          <h2 class="text-center mb-4" style="color: var(--text-primary);"><i class="bi-credit-card"></i> Credit Request Form</h2>
+          <p class="text-center mb-4" style="color: var(--text-secondary); font-weight: 500;">Fill in all information and attach required documents</p>
+        {% else %}
+          <h2 class="text-center mb-4" style="color: var(--text-primary);"><i class="bi-credit-card"></i> Formulaire de demande de crédit</h2>
+          <p class="text-center mb-4" style="color: var(--text-secondary); font-weight: 500;">Remplissez toutes les informations et joignez les pièces justificatives demandées</p>
+        {% endif %}
+        
+        <!-- Steps Navigation -->
+        <div class="steps-nav mb-4">
+          <div class="step-item active" id="nav-step-1">
+            <div class="step-circle">1</div>
+            <span class="step-label">
+              {% if current_language == 'ar' %}
+                المعلومات الشخصية
+              {% elif current_language == 'en' %}
+                Personal Information
+              {% else %}
+                Informations personnelles
+              {% endif %}
+            </span>
+          </div>
+          <div class="step-item" id="nav-step-2">
+            <div class="step-circle">2</div>
+            <span class="step-label">
+              {% if current_language == 'ar' %}
+                المعلومات المصرفية
+              {% elif current_language == 'en' %}
+                Banking Information
+              {% else %}
+                Informations bancaires
+              {% endif %}
+            </span>
+          </div>
+          <div class="step-item" id="nav-step-3">
+            <div class="step-circle">3</div>
+            <span class="step-label">
+              {% if current_language == 'ar' %}
+                المعلومات المهنية
+              {% elif current_language == 'en' %}
+                Professional Information
+              {% else %}
+                Informations professionnelles
+              {% endif %}
+            </span>
+          </div>
+          <div class="step-item" id="nav-step-4">
+            <div class="step-circle">4</div>
+            <span class="step-label">
+              {% if current_language == 'ar' %}
+                المعلومات المالية
+              {% elif current_language == 'en' %}
+                Financial Information
+              {% else %}
+                Informations financières
+              {% endif %}
+            </span>
+          </div>
+          <div class="step-item" id="nav-step-5">
+            <div class="step-circle">5</div>
+            <span class="step-label">
+              {% if current_language == 'ar' %}
+                تفاصيل القرض
+              {% elif current_language == 'en' %}
+                Loan Details
+              {% else %}
+                Détails du crédit
+              {% endif %}
+            </span>
+          </div>
+          <div class="step-item" id="nav-step-6">
+            <div class="step-circle">6</div>
+            <span class="step-label">
+              {% if current_language == 'ar' %}
+                المراجعة والإرسال
+              {% elif current_language == 'en' %}
+                Review & Submit
+              {% else %}
+                Révision et envoi
+              {% endif %}
+            </span>
+          </div>
+        </div>
+        <!-- Messages -->
+        {% if success %}
+        <div class="prediction-result {% if 'pré-approuvée' in success %}prediction-approved{% else %}prediction-rejected{% endif %}">
+          <div class="d-flex align-items-center mb-2">
+            <span class="prediction-icon">{% if 'pré-approuvée' in success %}🎉{% else %}📋{% endif %}</span>
+            <h4 class="mb-0">{% if 'pré-approuvée' in success %}Pré-approbation automatique{% else %}Demande enregistrée{% endif %}</h4>
+          </div>
+          <div style="white-space: pre-line;">{{ success }}</div>
+        </div>
+        {% endif %}
+        
+        {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          {{ error }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+
+<form id="creditForm" method="POST" action="/demande_credit" enctype="multipart/form-data" novalidate>
+
+          <!-- Step 1: Personal Information -->
+          <div class="step-card" id="step1">
+            <div class="step-title">
+              <span class="step-number">1</span>
+              {% if current_language == 'ar' %}
+                المعلومات الشخصية
+              {% elif current_language == 'en' %}
+                Personal Information
+              {% else %}
+                Informations personnelles
+              {% endif %}
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>الاسم الأخير <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="nom" required maxlength="100" placeholder="اسم العائلة">
+                  {% elif current_language == 'en' %}
+                    <label>Last Name <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="nom" required maxlength="100" placeholder="Family name">
+                  {% else %}
+                    <label>Nom <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="nom" required maxlength="100" placeholder="Nom de famille">
+                  {% endif %}
+                  <i class="bi bi-person-badge input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>الاسم الأول <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="prenom" required maxlength="100" placeholder="الاسم الأول">
+                  {% elif current_language == 'en' %}
+                    <label>First Name <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="prenom" required maxlength="100" placeholder="First name">
+                  {% else %}
+                    <label>Prénom <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="prenom" required maxlength="100" placeholder="Prénom">
+                  {% endif %}
+                  <i class="bi bi-person input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>تاريخ الميلاد <span class="required">*</span></label>
+                  {% elif current_language == 'en' %}
+                    <label>Date of Birth <span class="required">*</span></label>
+                  {% else %}
+                    <label>Date de naissance <span class="required">*</span></label>
+                  {% endif %}
+                  <input type="date" class="form-control" name="date_naissance" required>
+                  <i class="bi bi-calendar-date input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>مكان الميلاد</label>
+                    <input type="text" class="form-control" name="lieu_naissance" maxlength="100" placeholder="المدينة، البلد">
+                  {% elif current_language == 'en' %}
+                    <label>Place of birth</label>
+                    <input type="text" class="form-control" name="lieu_naissance" maxlength="100" placeholder="City, Country">
+                  {% else %}
+                    <label>Lieu de naissance</label>
+                    <input type="text" class="form-control" name="lieu_naissance" maxlength="100" placeholder="Ville, Pays">
+                  {% endif %}
+                  <i class="bi bi-geo-alt input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>رقم بطاقة الهوية / جواز السفر <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="document_id" required maxlength="30" placeholder="مثال: 01234567">
+                  {% elif current_language == 'en' %}
+                    <label>ID Number / Passport <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="document_id" required maxlength="30" placeholder="Ex: 01234567">
+                  {% else %}
+                    <label>Numéro CIN / Passeport <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="document_id" required maxlength="30" placeholder="Ex: 01234567">
+                  {% endif %}
+                  <i class="bi bi-card-text input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>الجنسية</label>
+                    <input type="text" class="form-control" name="nationalite" maxlength="50" placeholder="تونسية">
+                  {% elif current_language == 'en' %}
+                    <label>Nationality</label>
+                    <input type="text" class="form-control" name="nationalite" maxlength="50" placeholder="Tunisian">
+                  {% else %}
+                    <label>Nationalité</label>
+                    <input type="text" class="form-control" name="nationalite" maxlength="50" placeholder="Tunisienne">
+                  {% endif %}
+                  <i class="bi bi-flag input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>العنوان الكامل <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="adresse" required placeholder="الشارع، المدينة، الرمز البريدي">
+                    <i class="bi bi-house input-icon"></i>
+                    <small class="form-text">مطلوب إثبات السكن (فاتورة STEG/SONEDE، إلخ)</small>
+                  {% elif current_language == 'en' %}
+                    <label>Complete Address <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="adresse" required placeholder="Street, city, postal code">
+                    <i class="bi bi-house input-icon"></i>
+                    <small class="form-text">Proof of residence required (STEG/SONEDE bill, etc.)</small>
+                  {% else %}
+                    <label>Adresse complète <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="adresse" required placeholder="Rue, ville, code postal">
+                    <i class="bi bi-house input-icon"></i>
+                    <small class="form-text">Justificatif de domicile requis (facture STEG/SONEDE, etc.)</small>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>رقم الهاتف <span class="required">*</span></label>
+                    <input type="tel" class="form-control" name="telephone" required pattern="[0-9+()\-\s]{6,20}" placeholder="+216 XX XXX XXX">
+                  {% elif current_language == 'en' %}
+                    <label>Phone <span class="required">*</span></label>
+                    <input type="tel" class="form-control" name="telephone" required pattern="[0-9+()\-\s]{6,20}" placeholder="+216 XX XXX XXX">
+                  {% else %}
+                    <label>Téléphone <span class="required">*</span></label>
+                    <input type="tel" class="form-control" name="telephone" required pattern="[0-9+()\-\s]{6,20}" placeholder="+216 XX XXX XXX">
+                  {% endif %}
+                  <i class="bi bi-telephone input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" class="form-control" name="email" placeholder="exemple@domaine.tn">
+                  {% elif current_language == 'en' %}
+                    <label>Email</label>
+                    <input type="email" class="form-control" name="email" placeholder="exemple@domaine.tn">
+                  {% else %}
+                    <label>Email</label>
+                    <input type="email" class="form-control" name="email" placeholder="exemple@domaine.tn">
+                  {% endif %}
+                  <i class="bi bi-envelope input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">
+                <i class="bi-calendar3"></i>
+                {% if current_language == 'ar' %}
+                  الشهر <span class="required">*</span>
+                {% elif current_language == 'en' %}
+                  Month <span class="required">*</span>
+                {% else %}
+                  Mois <span class="required">*</span>
+                {% endif %}
+              </label>
+              <select class="form-control" name="Month" required>
+                <option value="">
+                  {% if current_language == 'ar' %}
+                    اختر الشهر...
+                  {% elif current_language == 'en' %}
+                    Choose month...
+                  {% else %}
+                    Choisir le mois...
+                  {% endif %}
+                </option>
+                <option value="January">{% if current_language == 'ar' %}يناير{% elif current_language == 'en' %}January{% else %}Janvier{% endif %}</option>
+                <option value="February">{% if current_language == 'ar' %}فبراير{% elif current_language == 'en' %}February{% else %}Février{% endif %}</option>
+                <option value="March">{% if current_language == 'ar' %}مارس{% elif current_language == 'en' %}March{% else %}Mars{% endif %}</option>
+                <option value="April">{% if current_language == 'ar' %}أبريل{% elif current_language == 'en' %}April{% else %}Avril{% endif %}</option>
+                <option value="May">{% if current_language == 'ar' %}مايو{% elif current_language == 'en' %}May{% else %}Mai{% endif %}</option>
+                <option value="June">{% if current_language == 'ar' %}يونيو{% elif current_language == 'en' %}June{% else %}Juin{% endif %}</option>
+                <option value="July">{% if current_language == 'ar' %}يوليو{% elif current_language == 'en' %}July{% else %}Juillet{% endif %}</option>
+                <option value="August">{% if current_language == 'ar' %}أغسطس{% elif current_language == 'en' %}August{% else %}Août{% endif %}</option>
+                <option value="September">{% if current_language == 'ar' %}سبتمبر{% elif current_language == 'en' %}September{% else %}Septembre{% endif %}</option>
+                <option value="October">{% if current_language == 'ar' %}أكتوبر{% elif current_language == 'en' %}October{% else %}Octobre{% endif %}</option>
+                <option value="November">{% if current_language == 'ar' %}نوفمبر{% elif current_language == 'en' %}November{% else %}Novembre{% endif %}</option>
+                <option value="December">{% if current_language == 'ar' %}ديسمبر{% elif current_language == 'en' %}December{% else %}Décembre{% endif %}</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">
+                <i class="bi-person"></i>
+                {% if current_language == 'ar' %}
+                  الاسم الكامل <span class="required">*</span>
+                {% elif current_language == 'en' %}
+                  Full Name <span class="required">*</span>
+                {% else %}
+                  Nom complet <span class="required">*</span>
+                {% endif %}
+              </label>
+              <input type="text" class="form-control" name="Name" required placeholder="Prénom Nom">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>أيام التأخير من تاريخ الاستحقاق</label>
+                  {% elif current_language == 'en' %}
+                    <label>Days delayed from due date</label>
+                  {% else %}
+                    <label>Jours de retard depuis l'échéance</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Delay_from_due_date" min="0" max="365" value="0">
+                  <i class="bi bi-calendar-x input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>عدد المدفوعات المتأخرة</label>
+                  {% elif current_language == 'en' %}
+                    <label>Number of delayed payments</label>
+                  {% else %}
+                    <label>Nombre de paiements en retard</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Num_of_Delayed_Payment" min="0" max="50" value="0">
+                  <i class="bi bi-exclamation-triangle input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>تغيير حد الائتمان</label>
+                  {% elif current_language == 'en' %}
+                    <label>Changed Credit Limit</label>
+                  {% else %}
+                    <label>Modification limite de crédit</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Changed_Credit_Limit" step="0.01">
+                  <i class="bi bi-arrow-up-down input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>عدد استعلامات الائتمان</label>
+                  {% elif current_language == 'en' %}
+                    <label>Number of credit inquiries</label>
+                  {% else %}
+                    <label>Nombre d'enquêtes de crédit</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Num_Credit_Inquiries" min="0" max="50" value="0">
+                  <i class="bi bi-search input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>مزيج الائتمان</label>
+                    <select class="form-control" name="Credit_Mix">
+                      <option value="">--اختر--</option>
+                      <option value="Standard">قياسي</option>
+                      <option value="Good">جيد</option>
+                      <option value="Bad">سيء</option>
+                    </select>
+                  {% elif current_language == 'en' %}
+                    <label>Credit Mix</label>
+                    <select class="form-control" name="Credit_Mix">
+                      <option value="">--Select--</option>
+                      <option value="Standard">Standard</option>
+                      <option value="Good">Good</option>
+                      <option value="Bad">Bad</option>
+                    </select>
+                  {% else %}
+                    <label>Mix de crédit</label>
+                    <select class="form-control" name="Credit_Mix">
+                      <option value="">--Sélectionner--</option>
+                      <option value="Standard">Standard</option>
+                      <option value="Good">Bon</option>
+                      <option value="Bad">Mauvais</option>
+                    </select>
+                  {% endif %}
+                  <i class="bi bi-pie-chart input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>الدين المستحق</label>
+                  {% elif current_language == 'en' %}
+                    <label>Outstanding Debt</label>
+                  {% else %}
+                    <label>Dette en cours</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Outstanding_Debt" step="0.01" min="0">
+                  <i class="bi bi-currency-dollar input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="step-navigation">
+              <button type="button" class="btn btn-outline-secondary" onclick="prevStep(2)"><i class="bi-arrow-left"></i> {% if current_language == 'ar' %}السابق{% elif current_language == 'en' %}Previous{% else %}Précédent{% endif %}</button>
+              <button type="button" class="btn btn-primary" onclick="nextStep(2)">{% if current_language == 'ar' %}التالي{% elif current_language == 'en' %}Next{% else %}Suivant{% endif %} <i class="bi-arrow-right"></i></button>
+            </div>
+          </div>
+
+          <!-- Step 3: Professional Information -->
+          <div class="step-card hidden" id="step3">
+            <div class="step-title">
+              <span class="step-number">3</span>
+              {% if current_language == 'ar' %}
+                المعلومات المهنية
+              {% elif current_language == 'en' %}
+                Professional Information
+              {% else %}
+                Informations professionnelles
+              {% endif %}
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>المهنة <span class="required">*</span></label>
+                  {% elif current_language == 'en' %}
+                    <label>Occupation <span class="required">*</span></label>
+                  {% else %}
+                    <label>Profession <span class="required">*</span></label>
+                  {% endif %}
+                  <input type="text" class="form-control" name="Occupation" required maxlength="100">
+                  <i class="bi bi-briefcase input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>الحالة المهنية</label>
+                    <select class="form-control" name="Statut_professionnel">
+                      <option value="">--اختر--</option>
+                      <option value="Salarié">موظف</option>
+                      <option value="Indépendant">مستقل</option>
+                      <option value="Fonctionnaire">موظف حكومي</option>
+                      <option value="Retraité">متقاعد</option>
+                      <option value="Étudiant">طالب</option>
+                      <option value="Sans emploi">عاطل عن العمل</option>
+                      <option value="Autre">أخرى</option>
+                    </select>
+                  {% elif current_language == 'en' %}
+                    <label>Professional Status</label>
+                    <select class="form-control" name="Statut_professionnel">
+                      <option value="">--Select--</option>
+                      <option value="Salarié">Employee</option>
+                      <option value="Indépendant">Self-employed</option>
+                      <option value="Fonctionnaire">Civil servant</option>
+                      <option value="Retraité">Retired</option>
+                      <option value="Étudiant">Student</option>
+                      <option value="Sans emploi">Unemployed</option>
+                      <option value="Autre">Other</option>
+                    </select>
+                  {% else %}
+                    <label>Statut professionnel</label>
+                    <select class="form-control" name="Statut_professionnel">
+                      <option value="">--Sélectionner--</option>
+                      <option value="Salarié">Salarié</option>
+                      <option value="Indépendant">Indépendant</option>
+                      <option value="Fonctionnaire">Fonctionnaire</option>
+                      <option value="Retraité">Retraité</option>
+                      <option value="Étudiant">Étudiant</option>
+                      <option value="Sans emploi">Sans emploi</option>
+                      <option value="Autre">Autre</option>
+                    </select>
+                  {% endif %}
+                  <i class="bi bi-person-workspace input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>نوع العقد</label>
+                    <select class="form-control" name="Type_contrat">
+                      <option value="">--اختر--</option>
+                      <option value="CDI">عقد دائم</option>
+                      <option value="CDD">عقد مؤقت</option>
+                      <option value="Stage">تدريب</option>
+                      <option value="Freelance">عمل حر</option>
+                      <option value="Autre">أخرى</option>
+                    </select>
+                  {% elif current_language == 'en' %}
+                    <label>Contract Type</label>
+                    <select class="form-control" name="Type_contrat">
+                      <option value="">--Select--</option>
+                      <option value="CDI">Permanent contract</option>
+                      <option value="CDD">Fixed-term contract</option>
+                      <option value="Stage">Internship</option>
+                      <option value="Freelance">Freelance</option>
+                      <option value="Autre">Other</option>
+                    </select>
+                  {% else %}
+                    <label>Type de contrat</label>
+                    <select class="form-control" name="Type_contrat">
+                      <option value="">--Sélectionner--</option>
+                      <option value="CDI">CDI</option>
+                      <option value="CDD">CDD</option>
+                      <option value="Stage">Stage</option>
+                      <option value="Freelance">Freelance</option>
+                      <option value="Autre">Autre</option>
+                    </select>
+                  {% endif %}
+                  <i class="bi bi-file-text input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>حجم الشركة</label>
+                    <select class="form-control" name="Taille_entreprise">
+                      <option value="">--اختر--</option>
+                      <option value="TPE">شركة صغيرة جداً (< 10 موظفين)</option>
+                      <option value="PME">شركة صغيرة ومتوسطة (10-250 موظف)</option>
+                      <option value="Grande entreprise">شركة كبيرة (> 250 موظف)</option>
+                      <option value="Administration">إدارة عامة</option>
+                    </select>
+                  {% elif current_language == 'en' %}
+                    <label>Company Size</label>
+                    <select class="form-control" name="Taille_entreprise">
+                      <option value="">--Select--</option>
+                      <option value="TPE">Very small company (< 10 employees)</option>
+                      <option value="PME">Small/Medium company (10-250 employees)</option>
+                      <option value="Grande entreprise">Large company (> 250 employees)</option>
+                      <option value="Administration">Public administration</option>
+                    </select>
+                  {% else %}
+                    <label>Taille de l'entreprise</label>
+                    <select class="form-control" name="Taille_entreprise">
+                      <option value="">--Sélectionner--</option>
+                      <option value="TPE">TPE (< 10 salariés)</option>
+                      <option value="PME">PME (10-250 salariés)</option>
+                      <option value="Grande entreprise">Grande entreprise (> 250 salariés)</option>
+                      <option value="Administration">Administration</option>
+                    </select>
+                  {% endif %}
+                  <i class="bi bi-building input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>مدة الخدمة (سنوات)</label>
+                  {% elif current_language == 'en' %}
+                    <label>Years of employment</label>
+                  {% else %}
+                    <label>Ancienneté emploi (années)</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Anciennete_emploi" min="0" max="50" step="0.5">
+                  <i class="bi bi-clock-history input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>الراتب الشهري الصافي <span class="required">*</span></label>
+                  {% elif current_language == 'en' %}
+                    <label>Monthly Net Salary <span class="required">*</span></label>
+                  {% else %}
+                    <label>Salaire mensuel net <span class="required">*</span></label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Monthly_Inhand_Salary" required min="0" step="0.01">
+                  <i class="bi bi-currency-dollar input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>الدخل السنوي <span class="required">*</span></label>
+                  {% elif current_language == 'en' %}
+                    <label>Annual Income <span class="required">*</span></label>
+                  {% else %}
+                    <label>Revenu annuel <span class="required">*</span></label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Annual_Income" required min="0" step="0.01">
+                  <i class="bi bi-graph-up input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>الدخل الإضافي الشهري</label>
+                  {% elif current_language == 'en' %}
+                    <label>Additional Monthly Income</label>
+                  {% else %}
+                    <label>Autres revenus mensuels</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Autres_revenus_mensuels" min="0" step="0.01">
+                  <i class="bi bi-plus-circle input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>استقرار الدخل</label>
+                    <select class="form-control" name="Stabilite_revenus">
+                      <option value="">--اختر--</option>
+                      <option value="Très stable">مستقر جداً</option>
+                      <option value="Stable">مستقر</option>
+                      <option value="Variable">متغير</option>
+                      <option value="Instable">غير مستقر</option>
+                    </select>
+                  {% elif current_language == 'en' %}
+                    <label>Income Stability</label>
+                    <select class="form-control" name="Stabilite_revenus">
+                      <option value="">--Select--</option>
+                      <option value="Très stable">Very stable</option>
+                      <option value="Stable">Stable</option>
+                      <option value="Variable">Variable</option>
+                      <option value="Instable">Unstable</option>
+                    </select>
+                  {% else %}
+                    <label>Stabilité des revenus</label>
+                    <select class="form-control" name="Stabilite_revenus">
+                      <option value="">--Sélectionner--</option>
+                      <option value="Très stable">Très stable</option>
+                      <option value="Stable">Stable</option>
+                      <option value="Variable">Variable</option>
+                      <option value="Instable">Instable</option>
+                    </select>
+                  {% endif %}
+                  <i class="bi bi-bar-chart input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="step-navigation">
+              <button type="button" class="btn btn-outline-secondary" onclick="prevStep(3)"><i class="bi-arrow-left"></i> {% if current_language == 'ar' %}السابق{% elif current_language == 'en' %}Previous{% else %}Précédent{% endif %}</button>
+              <button type="button" class="btn btn-primary" onclick="nextStep(3)">{% if current_language == 'ar' %}التالي{% elif current_language == 'en' %}Next{% else %}Suivant{% endif %} <i class="bi-arrow-right"></i></button>
+            </div>
+          </div>
+
+          <!-- Step 4: Financial Information -->
+          <div class="step-card hidden" id="step4">
+            <div class="step-title">
+              <span class="step-number">4</span>
+              {% if current_language == 'ar' %}
+                المعلومات المالية
+              {% elif current_language == 'en' %}
+                Financial Information
+              {% else %}
+                Informations financières
+              {% endif %}
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>إجمالي دخل الأسرة الشهري</label>
+                  {% elif current_language == 'en' %}
+                    <label>Total Household Monthly Income</label>
+                  {% else %}
+                    <label>Revenu total du foyer</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Revenu_total_foyer" min="0" step="0.01">
+                  <i class="bi bi-house-heart input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>الرسوم الثابتة الشهرية</label>
+                  {% elif current_language == 'en' %}
+                    <label>Monthly Fixed Charges</label>
+                  {% else %}
+                    <label>Charges fixes mensuelles</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Charges_fixes_mensuelles" min="0" step="0.01">
+                  <i class="bi bi-receipt input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>الالتزامات المالية الأخرى</label>
+                  {% elif current_language == 'en' %}
+                    <label>Other Financial Obligations</label>
+                  {% else %}
+                    <label>Autres obligations financières</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Autres_obligations_financieres" min="0" step="0.01">
+                  <i class="bi bi-credit-card-2-front input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>نسبة الدين إلى الدخل (DTI %)</label>
+                  {% elif current_language == 'en' %}
+                    <label>Debt-to-Income Ratio (DTI %)</label>
+                  {% else %}
+                    <label>Taux d'endettement DTI (%)</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Taux_endettement_DTI" min="0" max="100" step="0.1">
+                  <i class="bi bi-percent input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>قدرة السداد الشهرية</label>
+                  {% elif current_language == 'en' %}
+                    <label>Monthly Repayment Capacity</label>
+                  {% else %}
+                    <label>Capacité de remboursement</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Capacite_remboursement" min="0" step="0.01">
+                  <i class="bi bi-calculator input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>نسبة الدخل إلى القسط الشهري</label>
+                  {% elif current_language == 'en' %}
+                    <label>Income to Monthly Payment Ratio</label>
+                  {% else %}
+                    <label>Ratio revenu/mensualité</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Ratio_revenu_mensualite" min="0" step="0.01">
+                  <i class="bi bi-graph-up-arrow input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>نسبة استخدام الائتمان (%)</label>
+                  {% elif current_language == 'en' %}
+                    <label>Credit Utilization Ratio (%)</label>
+                  {% else %}
+                    <label>Ratio d'utilisation du crédit (%)</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Credit_Utilization_Ratio" min="0" max="100" step="0.1">
+                  <i class="bi bi-speedometer input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>عمر التاريخ الائتماني (سنوات)</label>
+                  {% elif current_language == 'en' %}
+                    <label>Credit History Age (years)</label>
+                  {% else %}
+                    <label>Âge de l'historique crédit (années)</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Credit_History_Age" min="0" max="50" step="0.1">
+                  <i class="bi bi-clock-history input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>إجمالي الأقساط الشهرية</label>
+                  {% elif current_language == 'en' %}
+                    <label>Total Monthly EMI</label>
+                  {% else %}
+                    <label>Total EMI mensuel</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Total_EMI_per_month" min="0" step="0.01">
+                  <i class="bi bi-cash-stack input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>المبلغ المستثمر شهرياً</label>
+                  {% elif current_language == 'en' %}
+                    <label>Amount Invested Monthly</label>
+                  {% else %}
+                    <label>Montant investi mensuellement</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Amount_invested_monthly" min="0" step="0.01">
+                  <i class="bi bi-piggy-bank input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>الرصيد الشهري</label>
+                  {% elif current_language == 'en' %}
+                    <label>Monthly Balance</label>
+                  {% else %}
+                    <label>Solde mensuel</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Monthly_Balance" step="0.01">
+                  <i class="bi bi-wallet2 input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>سلوك الدفع</label>
+                    <select class="form-control" name="Payment_Behaviour">
+                      <option value="">--اختر--</option>
+                      <option value="High_spent_Small_value_payments">إنفاق عالي، مدفوعات صغيرة</option>
+                      <option value="Low_spent_Large_value_payments">إنفاق قليل، مدفوعات كبيرة</option>
+                      <option value="High_spent_Medium_value_payments">إنفاق عالي، مدفوعات متوسطة</option>
+                      <option value="Low_spent_Medium_value_payments">إنفاق قليل، مدفوعات متوسطة</option>
+                      <option value="High_spent_Large_value_payments">إنفاق عالي، مدفوعات كبيرة</option>
+                      <option value="Low_spent_Small_value_payments">إنفاق قليل، مدفوعات صغيرة</option>
+                    </select>
+                  {% elif current_language == 'en' %}
+                    <label>Payment Behavior</label>
+                    <select class="form-control" name="Payment_Behaviour">
+                      <option value="">--Select--</option>
+                      <option value="High_spent_Small_value_payments">High spent, Small payments</option>
+                      <option value="Low_spent_Large_value_payments">Low spent, Large payments</option>
+                      <option value="High_spent_Medium_value_payments">High spent, Medium payments</option>
+                      <option value="Low_spent_Medium_value_payments">Low spent, Medium payments</option>
+                      <option value="High_spent_Large_value_payments">High spent, Large payments</option>
+                      <option value="Low_spent_Small_value_payments">Low spent, Small payments</option>
+                    </select>
+                  {% else %}
+                    <label>Comportement de paiement</label>
+                    <select class="form-control" name="Payment_Behaviour">
+                      <option value="">--Sélectionner--</option>
+                      <option value="High_spent_Small_value_payments">Dépenses élevées, petits paiements</option>
+                      <option value="Low_spent_Large_value_payments">Dépenses faibles, gros paiements</option>
+                      <option value="High_spent_Medium_value_payments">Dépenses élevées, paiements moyens</option>
+                      <option value="Low_spent_Medium_value_payments">Dépenses faibles, paiements moyens</option>
+                      <option value="High_spent_Large_value_payments">Dépenses élevées, gros paiements</option>
+                      <option value="Low_spent_Small_value_payments">Dépenses faibles, petits paiements</option>
+                    </select>
+                  {% endif %}
+                  <i class="bi bi-activity input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>دفع الحد الأدنى للمبلغ</label>
+                    <select class="form-control" name="Payment_of_Min_Amount">
+                      <option value="">--اختر--</option>
+                      <option value="Yes">نعم</option>
+                      <option value="No">لا</option>
+                      <option value="NM">غير محدد</option>
+                    </select>
+                  {% elif current_language == 'en' %}
+                    <label>Payment of Minimum Amount</label>
+                    <select class="form-control" name="Payment_of_Min_Amount">
+                      <option value="">--Select--</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No</option>
+                      <option value="NM">Not specified</option>
+                    </select>
+                  {% else %}
+                    <label>Paiement du montant minimum</label>
+                    <select class="form-control" name="Payment_of_Min_Amount">
+                      <option value="">--Sélectionner--</option>
+                      <option value="Yes">Oui</option>
+                      <option value="No">Non</option>
+                      <option value="NM">Non spécifié</option>
+                    </select>
+                  {% endif %}
+                  <i class="bi bi-check-circle input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="step-navigation">
+              <button type="button" class="btn btn-outline-secondary" onclick="prevStep(4)"><i class="bi-arrow-left"></i> {% if current_language == 'ar' %}السابق{% elif current_language == 'en' %}Previous{% else %}Précédent{% endif %}</button>
+              <button type="button" class="btn btn-primary" onclick="nextStep(4)">{% if current_language == 'ar' %}التالي{% elif current_language == 'en' %}Next{% else %}Suivant{% endif %} <i class="bi-arrow-right"></i></button>
+            </div>
+          </div>
+
+          <!-- Step 5: Loan Details -->
+          <div class="step-card hidden" id="step5">
+            <div class="step-title">
+              <span class="step-number">5</span>
+              {% if current_language == 'ar' %}
+                تفاصيل القرض المطلوب
+              {% elif current_language == 'en' %}
+                Loan Details
+              {% else %}
+                Détails du crédit demandé
+              {% endif %}
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>مبلغ القرض المطلوب <span class="required">*</span></label>
+                  {% elif current_language == 'en' %}
+                    <label>Requested Loan Amount <span class="required">*</span></label>
+                  {% else %}
+                    <label>Montant crédit demandé <span class="required">*</span></label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Montant_credit_demande" required min="0" step="0.01">
+                  <i class="bi bi-currency-dollar input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>مدة السداد المرغوبة (شهر) <span class="required">*</span></label>
+                  {% elif current_language == 'en' %}
+                    <label>Desired Repayment Duration (months) <span class="required">*</span></label>
+                  {% else %}
+                    <label>Durée remboursement souhaitée (mois) <span class="required">*</span></label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Duree_remboursement_souhaitee" required min="1" max="480">
+                  <i class="bi bi-calendar-range input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>المساهمة الشخصية</label>
+                  {% elif current_language == 'en' %}
+                    <label>Personal Contribution</label>
+                  {% else %}
+                    <label>Apport personnel</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Apport_personnel" min="0" step="0.01">
+                  <i class="bi bi-wallet input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>غرض القرض <span class="required">*</span></label>
+                    <select class="form-control" name="Objet_credit" required>
+                      <option value="">--اختر--</option>
+                      <option value="Achat immobilier">شراء عقار</option>
+                      <option value="Achat véhicule">شراء مركبة</option>
+                      <option value="Travaux">أشغال</option>
+                      <option value="Consommation">استهلاك</option>
+                      <option value="Consolidation dettes">توحيد الديون</option>
+                      <option value="Investissement">استثمار</option>
+                      <option value="Éducation">تعليم</option>
+                      <option value="Santé">صحة</option>
+                      <option value="Autre">أخرى</option>
+                    </select>
+                  {% elif current_language == 'en' %}
+                    <label>Loan Purpose <span class="required">*</span></label>
+                    <select class="form-control" name="Objet_credit" required>
+                      <option value="">--Select--</option>
+                      <option value="Achat immobilier">Real estate purchase</option>
+                      <option value="Achat véhicule">Vehicle purchase</option>
+                      <option value="Travaux">Home improvement</option>
+                      <option value="Consommation">Consumption</option>
+                      <option value="Consolidation dettes">Debt consolidation</option>
+                      <option value="Investissement">Investment</option>
+                      <option value="Éducation">Education</option>
+                      <option value="Santé">Health</option>
+                      <option value="Autre">Other</option>
+                    </select>
+                  {% else %}
+                    <label>Objet du crédit <span class="required">*</span></label>
+                    <select class="form-control" name="Objet_credit" required>
+                      <option value="">--Sélectionner--</option>
+                      <option value="Achat immobilier">Achat immobilier</option>
+                      <option value="Achat véhicule">Achat véhicule</option>
+                      <option value="Travaux">Travaux</option>
+                      <option value="Consommation">Consommation</option>
+                      <option value="Consolidation dettes">Consolidation dettes</option>
+                      <option value="Investissement">Investissement</option>
+                      <option value="Éducation">Éducation</option>
+                      <option value="Santé">Santé</option>
+                      <option value="Autre">Autre</option>
+                    </select>
+                  {% endif %}
+                  <i class="bi bi-bullseye input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>نسبة القرض إلى القيمة (LTV %)</label>
+                  {% elif current_language == 'en' %}
+                    <label>Loan-to-Value Ratio (LTV %)</label>
+                  {% else %}
+                    <label>Loan-to-Value LTV (%)</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Loan_to_value_LTV" min="0" max="100" step="0.1">
+                  <i class="bi bi-percent input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>الضمانات والكفالات</label>
+                    <textarea class="form-control" name="Garanties_collateraux" rows="3" maxlength="500" placeholder="مثال: رهن عقاري، كفالة شخصية، تحويل الراتب..."></textarea>
+                  {% elif current_language == 'en' %}
+                    <label>Guarantees and Collaterals</label>
+                    <textarea class="form-control" name="Garanties_collateraux" rows="3" maxlength="500" placeholder="Ex: mortgage, personal guarantee, salary domiciliation..."></textarea>
+                  {% else %}
+                    <label>Garanties et collatéraux</label>
+                    <textarea class="form-control" name="Garanties_collateraux" rows="3" maxlength="500" placeholder="Ex: hypothèque, caution personnelle, domiciliation salaire..."></textarea>
+                  {% endif %}
+                  <i class="bi bi-shield-check input-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>الشهر</label>
+                  {% elif current_language == 'en' %}
+                    <label>Month</label>
+                  {% else %}
+                    <label>Mois</label>
+                  {% endif %}
+                  <select class="form-control" name="Month">
+                    <option value="">--Sélectionner--</option>
+                    <option value="January">Janvier</option>
+                    <option value="February">Février</option>
+                    <option value="March">Mars</option>
+                    <option value="April">Avril</option>
+                    <option value="May">Mai</option>
+                    <option value="June">Juin</option>
+                    <option value="July">Juillet</option>
+                    <option value="August">Août</option>
+                    <option value="September">Septembre</option>
+                    <option value="October">Octobre</option>
+                    <option value="November">Novembre</option>
+                    <option value="December">Décembre</option>
+                  </select>
+                  <i class="bi bi-calendar-month input-icon"></i>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="form-group-icon">
+                  {% if current_language == 'ar' %}
+                    <label>نقاط الائتمان</label>
+                  {% elif current_language == 'en' %}
+                    <label>Credit Score</label>
+                  {% else %}
+                    <label>Score de crédit</label>
+                  {% endif %}
+                  <input type="number" class="form-control" name="Credit_Score" min="300" max="850">
+                  <i class="bi bi-graph-up input-icon"></i>
+                  <small class="form-text">Score entre 300 et 850 (optionnel)</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="step-navigation">
+              <button type="button" class="btn btn-outline-secondary" onclick="prevStep(5)"><i class="bi-arrow-left"></i> {% if current_language == 'ar' %}السابق{% elif current_language == 'en' %}Previous{% else %}Précédent{% endif %}</button>
+              <button type="button" class="btn btn-primary" onclick="nextStep(5)">{% if current_language == 'ar' %}التالي{% elif current_language == 'en' %}Next{% else %}Suivant{% endif %} <i class="bi-arrow-right"></i></button>
+            </div>
+          </div>
+
+          <!-- Step 6: Review & Submit -->
+          <div class="step-card hidden" id="step6">
+            <div class="step-title">
+              <span class="step-number">6</span>
+              {% if current_language == 'ar' %}
+                المراجعة والإرسال
+              {% elif current_language == 'en' %}
+                Review & Submit
+              {% else %}
+                Révision et envoi
+              {% endif %}
+            </div>
+
+            <div class="alert alert-info">
+              {% if current_language == 'ar' %}
+                <h5><i class="bi bi-info-circle"></i> مراجعة طلبك</h5>
+                <p>يرجى مراجعة جميع المعلومات المدخلة قبل إرسال طلب القرض. تأكد من صحة جميع البيانات.</p>
+              {% elif current_language == 'en' %}
+                <h5><i class="bi bi-info-circle"></i> Review Your Application</h5>
+                <p>Please review all entered information before submitting your loan application. Make sure all data is correct.</p>
+              {% else %}
+                <h5><i class="bi bi-info-circle"></i> Révision de votre demande</h5>
+                <p>Veuillez vérifier toutes les informations saisies avant de soumettre votre demande de crédit. Assurez-vous que toutes les données sont correctes.</p>
+              {% endif %}
+            </div>
+
+            <!-- Consent -->
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="consent" required>
+              {% if current_language == 'ar' %}
+                <label class="form-check-label" for="consent">أوافق على قيام البنك بالتحقق من المعلومات المقدمة وإجراء فحوصات ائتمانية. <span class="required">*</span></label>
+              {% elif current_language == 'en' %}
+                <label class="form-check-label" for="consent">I authorize the bank to verify the information provided and perform credit checks. <span class="required">*</span></label>
+              {% else %}
+                <label class="form-check-label" for="consent">J'autorise la banque à vérifier les informations fournies et à effectuer des vérifications de crédit. <span class="required">*</span></label>
+              {% endif %}
+            </div>
+
+            <div class="step-navigation">
+              <button type="button" class="btn btn-outline-secondary" onclick="prevStep(6)"><i class="bi-arrow-left"></i> {% if current_language == 'ar' %}السابق{% elif current_language == 'en' %}Previous{% else %}Précédent{% endif %}</button>
+              <button type="submit" class="btn btn-success" id="submitBtn">{% if current_language == 'ar' %}إرسال الطلب{% elif current_language == 'en' %}Submit Request{% else %}Soumettre la demande{% endif %} <i class="bi-check-circle"></i></button>
+            </div>
+            
+            <div class="mt-3 text-center">
+              <small class="text-white-75">
+                <i class="bi-robot"></i> 
+                {% if current_language == 'ar' %}
+                  سيتم تحليل طلبك تلقائياً بواسطة الذكاء الاصطناعي
+                {% elif current_language == 'en' %}
+                  Your request will be automatically analyzed by AI
+                {% else %}
+                  Votre demande sera analysée automatiquement par IA
+                {% endif %}
+              </small>
+            </div>
+          </div>
+
+        </form>
+
+        <div class="mt-3" id="result" style="display:none"></div>
+
+      </div>
+    </div>
+  </header>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+      let currentStep = 1;
+      const totalSteps = 6;
+    
+    // Step navigation functions
+    function showStep(step) {
+      // Hide all steps
+      for(let i = 1; i <= totalSteps; i++) {
+        const stepElement = document.getElementById('step' + i);
+        if (stepElement) {
+          stepElement.classList.add('hidden');
+        }
+        // Update step navigation indicators
+        const navStep = document.getElementById('nav-step-' + i);
+        if (navStep) {
+          navStep.classList.remove('active');
+        }
+      }
+      // Show current step
+      const currentStepElement = document.getElementById('step' + step);
+      if (currentStepElement) {
+        currentStepElement.classList.remove('hidden');
+      }
+      
+      // Update step navigation indicator
+      const currentNavStep = document.getElementById('nav-step-' + step);
+      if (currentNavStep) {
+        currentNavStep.classList.add('active');
+      }
+      
+      // Scroll to top
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+    
+    function nextStep(step) {
+      // Validate current step before proceeding
+      if(validateStep(step)) {
+        currentStep = step + 1;
+        showStep(currentStep);
+      }
+    }
+    
+    function prevStep(step) {
+      currentStep = step - 1;
+      showStep(currentStep);
+    }
+    
+    function validateStep(step) {
+      const stepElement = document.getElementById('step' + step);
+      const requiredFields = stepElement.querySelectorAll('[required]');
+      let isValid = true;
+      
+      requiredFields.forEach(field => {
+        if(!field.value || field.value.trim() === '') {
+          field.classList.add('is-invalid');
+          isValid = false;
+        } else {
+          field.classList.remove('is-invalid');
+        }
+      });
+      
+      if(!isValid) {
+        alert('Veuillez remplir tous les champs obligatoires avant de continuer.');
+      }
+      
+      return isValid;
+    }
+    
+    function validateAllSteps() {
+      let allValid = true;
+      for(let i = 1; i <= totalSteps - 1; i++) { // Exclude the last step (review)
+        const stepElement = document.getElementById('step' + i);
+        const requiredFields = stepElement.querySelectorAll('[required]');
+        
+        requiredFields.forEach(field => {
+          if(!field.value || field.value.trim() === '') {
+            field.classList.add('is-invalid');
+            allValid = false;
+          }
+        });
+      }
+      return allValid;
+    }
+    
+    // File preview function
+    function showPreview(input, containerId){
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      if(!input.files || input.files.length===0) return;
+      const list = document.createElement('ul');
+      list.style.color = '#ccc';
+      for(const f of input.files){
+        const li = document.createElement('li');
+        li.textContent = f.name + ' (' + Math.round(f.size/1024) + ' KB)';
+        list.appendChild(li);
+      }
+      container.appendChild(list);
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      showStep(1);
+      
+      // Add file preview listeners
+      const fileInputs = document.querySelectorAll('input[type="file"]');
+      fileInputs.forEach(input => {
+        const previewId = 'preview_' + input.name.replace('file_', '');
+        input.addEventListener('change', e => showPreview(e.target, previewId));
+      });
+      
+      // Form validation on submit
+      document.getElementById('creditForm').addEventListener('submit', function(e){
+        const form = e.target;
+        const submitBtn = document.getElementById('submitBtn');
+        
+        console.log('🚀 Tentative de soumission du formulaire');
+        
+        // Check consent checkbox
+        const consentCheckbox = document.getElementById('consent');
+        if(!consentCheckbox.checked) {
+          e.preventDefault();
+          alert('Veuillez accepter les conditions avant de soumettre votre demande.');
+          consentCheckbox.focus();
+          return;
+        }
+        
+        // Show loading state
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyse en cours...';
+        submitBtn.disabled = true;
+        
+        console.log('✅ Formulaire soumis avec succès');
+      });
+      
+      // Real-time validation
+      const inputs = document.querySelectorAll('input, select, textarea');
+      inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+          if(this.hasAttribute('required') && !this.value.trim()) {
+            this.classList.add('is-invalid');
+          } else {
+            this.classList.remove('is-invalid');
+          }
+        });
+        
+        input.addEventListener('input', function() {
+          if(this.classList.contains('is-invalid') && this.value.trim()) {
+            this.classList.remove('is-invalid');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
