@@ -21,12 +21,12 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/overrides.css') }}">
   <style>
-    .auth-wrapper { min-height: 100vh; display: flex; padding-top: 96px; }
+    .auth-wrapper { min-height: 100vh; display: flex; padding-top: 0; }
     .left-pane { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 24px 48px 32px; background: #ffffff; }
-    .right-pane { flex: 1; background-color: #1f2b46; color: #fff; position: relative; display: none; overflow: hidden; }
+    .right-pane { flex: 1; background-color: #0b2d4a; color: #fff; position: relative; display: none; overflow: hidden; }
     .right-pane .overlay { position: relative; z-index: 1; height: 100%; padding: 48px; display: flex; flex-direction: column; justify-content: center; }
     .hero { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-    .hero img { width: 100%; height: 100%; object-fit: cover; transition: opacity .35s ease; }
+    .hero img { width: 100%; height: 100%; object-fit: cover; object-position: center; background: #0b2d4a; transition: opacity .35s ease; }
     .dots { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 2; }
     .dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.5); transition: opacity .3s, transform .3s; cursor: pointer; }
     @keyframes dotPulse { 0%{transform: scale(1)} 50%{transform: scale(1.25)} 100%{transform: scale(1)} }
