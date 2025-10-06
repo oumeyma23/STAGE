@@ -198,6 +198,28 @@ def _save_reset_token(email, token_hash, ttl_minutes=60):
         return True
     except Exception as e:
         print(f"❌ Erreur sauvegarde token reset: {e}")
+        # Si la table est manquante, tenter de la créer et réessayer une fois
+        if "1146" in str(e) or "password_resets" in str(e):
+            print("🛠️ Tentative de création de la table password_resets puis nouvel essai...")
+            try:
+                _ensure_reset_table()
+                cur = mysql.connection.cursor()
+                cur.execute("UPDATE password_resets SET used=1 WHERE email=%s", (email,))
+                expires_at = datetime.now() + timedelta(minutes=ttl_minutes)
+                cur.execute(
+                    """
+                    INSERT INTO password_resets (email, token_hash, expires_at, used)
+                    VALUES (%s, %s, %s, 0)
+                    """,
+                    (email, token_hash, expires_at)
+                )
+                mysql.connection.commit()
+                cur.close()
+                print("✅ Token enregistré après création de table")
+                return True
+            except Exception as e2:
+                print(f"❌ Échec après création de table: {e2}")
+                return False
         return False
 
 def _verify_reset_token(token):
@@ -908,41 +930,93 @@ def resend_signup_otp():
 def forgot_password():
     current_language = session.get('language', 'fr')
     message = None
+    success = None
     error = None
     dev_reset_url = None
+
+    # Simple session-based rate limit: max 5 attempts per 10 minutes
+    if 'fp_attempts' not in session:
+        session['fp_attempts'] = []
+    # Dev helpers: allow clearing attempts and bypass RL in debug/local
+    if request.args.get('reset_rl') == '1':
+        session['fp_attempts'] = []
+    bypass_rl = bool(app.config.get('SHOW_RESET_LINK_DEBUG')) or request.remote_addr in ('127.0.0.1', '::1')
+    # Cleanup old attempts
+    now_ts = datetime.now().timestamp()
+    session['fp_attempts'] = [t for t in session['fp_attempts'] if now_ts - t < 600]
+
     if request.method == 'POST':
+        # Rate limit check
+        if not bypass_rl and len(session['fp_attempts']) >= 5:
+            print(f"🚫 Rate limited /forgot_password from {request.remote_addr}")
+            if current_language == 'ar':
+                error = "عدد المحاولات كبير. الرجاء المحاولة لاحقًا"
+            elif current_language == 'en':
+                error = "Too many attempts. Please try again later"
+            else:
+                error = "Trop de tentatives. Réessayez plus tard"
+            return render_template('forgot_password.html', error=error, current_language=current_language), 429
+
         email = request.form.get('email', '').strip()
         submitted_email = email
-        # Normaliser en minuscule pour éviter les problèmes de casse
         email = email.lower()
-        # Always respond generically
-        message_fr = "Si un compte existe pour cet e-mail, vous recevrez un lien de réinitialisation."
-        message_en = "If an account exists for this email, you will receive a reset link."
-        message_ar = "إذا كان هناك حساب لهذا البريد الإلكتروني، ستتلقى رابط إعادة التعيين."
-        message = message_fr if current_language == 'fr' else (message_en if current_language == 'en' else message_ar)
 
         try:
             cur = mysql.connection.cursor()
             cur.execute("SELECT id FROM signup WHERE LOWER(email)=LOWER(%s)", (email,))
             user = cur.fetchone()
             cur.close()
-            if user:
-                print(f"✅ Compte trouvé pour l'email soumis: {submitted_email}")
-                token, token_hash = _generate_reset_token()
-                if _save_reset_token(email, token_hash):
-                    reset_url = url_for('reset_password', token=token, _external=True)
-                    print(f"🔗 Lien de reset (server log): {reset_url}")
-                    _send_password_reset_email(email, reset_url)
-                    if app.config.get('SHOW_RESET_LINK_DEBUG'):
-                        dev_reset_url = reset_url
+            if not user:
+                # Log and return explicit 400 as requested
+                print(f"❌ /forgot_password: email inconnu soumis={submitted_email} ip={request.remote_addr}")
+                if current_language == 'ar':
+                    error = "بريد إلكتروني غير صالح"
+                elif current_language == 'en':
+                    error = "Invalid email"
                 else:
-                    print("❌ Échec sauvegarde du token reset en base")
+                    error = "Mail invalide"
+                session['fp_attempts'].append(now_ts)
+                return render_template('forgot_password.html', error=error, current_language=current_language), 400
+
+            # Known email: generate token, save hash, email link
+            token, token_hash = _generate_reset_token()
+            if _save_reset_token(email, token_hash):
+                reset_url = url_for('reset_password', token=token, _external=True)
+                print(f"🔗 /forgot_password reset link for {submitted_email}: {reset_url}")
+                send_ok = _send_password_reset_email(email, reset_url)
+                print(f"📧 send_ok={send_ok}")
+                # In dev, expose reset link to proceed. If send failed, also expose to ease testing.
+                if app.config.get('SHOW_RESET_LINK_DEBUG') or not send_ok:
+                    dev_reset_url = reset_url
+                if current_language == 'ar':
+                    success = "تم إنشاء رابط إعادة التعيين. تحقق من بريدك الإلكتروني"
+                elif current_language == 'en':
+                    success = "A reset link has been generated. Please check your email"
+                else:
+                    success = "Un lien de réinitialisation a été généré. Veuillez vérifier votre e‑mail"
+                session['fp_attempts'].append(now_ts)
+                return render_template('forgot_password.html', success=success, current_language=current_language, dev_reset_url=dev_reset_url)
             else:
-                print(f"ℹ️ Aucun compte trouvé pour: {submitted_email}")
+                print("❌ Échec sauvegarde du token reset en base")
+                if current_language == 'ar':
+                    error = "حدث خطأ. حاول مرة أخرى"
+                elif current_language == 'en':
+                    error = "An error occurred. Please try again"
+                else:
+                    error = "Une erreur s'est produite. Veuillez réessayer"
+                session['fp_attempts'].append(now_ts)
+                return render_template('forgot_password.html', error=error, current_language=current_language), 500
         except Exception as e:
             print(f"⚠️ forgot_password process error: {e}")
-        # Always render with generic message
-        return render_template('forgot_password.html', message=message, current_language=current_language, dev_reset_url=dev_reset_url)
+            if current_language == 'ar':
+                error = "حدث خطأ. حاول مرة أخرى"
+            elif current_language == 'en':
+                error = "An error occurred. Please try again"
+            else:
+                error = "Une erreur s'est produite. Veuillez réessayer"
+            session['fp_attempts'].append(now_ts)
+            return render_template('forgot_password.html', error=error, current_language=current_language), 500
+
     return render_template('forgot_password.html', message=message, current_language=current_language, dev_reset_url=dev_reset_url)
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
