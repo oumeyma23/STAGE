@@ -16,6 +16,9 @@ from datetime import datetime, timedelta
 from config_email import SMTP_CONFIG
 import random
 import string
+import re
+import secrets
+import hashlib
 
 try:
     from flask_babel import Babel, gettext, ngettext, get_locale
@@ -62,6 +65,7 @@ except ImportError as e:
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
+app.config['SHOW_RESET_LINK_DEBUG'] = True  # Mode dev: afficher le lien directement après envoi
 
 # Configuration Babel
 app.config['LANGUAGES'] = {
@@ -92,6 +96,32 @@ mysql = MySQL(app)
 
 UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Create password reset table if not exists (idempotent)
+def _ensure_reset_table():
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS password_resets (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                email VARCHAR(255) NOT NULL,
+                token_hash CHAR(64) NOT NULL,
+                expires_at DATETIME NOT NULL,
+                used TINYINT(1) NOT NULL DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX (email),
+                INDEX (token_hash)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            """
+        )
+        mysql.connection.commit()
+        cur.close()
+        print("✅ Table password_resets vérifiée/créée")
+    except Exception as e:
+        print(f"⚠️ Impossible de vérifier/créer password_resets: {e}")
+
+_ensure_reset_table()
 
 # Route pour changer de langue
 @app.route('/set_language/<language>')
@@ -140,6 +170,106 @@ def envoyer_mail(destinataire, nom_complet):
         return True
     except smtplib.SMTPAuthenticationError as e:
         print(f"❌ Erreur d'authentification SMTP: {e}")
+        return False
+
+# =======================
+# Password reset utilities
+# =======================
+def _generate_reset_token():
+    token = secrets.token_urlsafe(32)
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    return token, token_hash
+
+def _save_reset_token(email, token_hash, ttl_minutes=60):
+    try:
+        cur = mysql.connection.cursor()
+        # Invalidate previous tokens for this email
+        cur.execute("UPDATE password_resets SET used=1 WHERE email=%s", (email,))
+        expires_at = datetime.now() + timedelta(minutes=ttl_minutes)
+        cur.execute(
+            """
+            INSERT INTO password_resets (email, token_hash, expires_at, used)
+            VALUES (%s, %s, %s, 0)
+            """,
+            (email, token_hash, expires_at)
+        )
+        mysql.connection.commit()
+        cur.close()
+        return True
+    except Exception as e:
+        print(f"❌ Erreur sauvegarde token reset: {e}")
+        return False
+
+def _verify_reset_token(token):
+    try:
+        token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+        cur = mysql.connection.cursor()
+        cur.execute(
+            """
+            SELECT email, expires_at, used FROM password_resets
+            WHERE token_hash=%s
+            ORDER BY created_at DESC
+            LIMIT 1
+            """,
+            (token_hash,)
+        )
+        row = cur.fetchone()
+        cur.close()
+        if not row:
+            return False, None, "invalid"
+        email, expires_at, used = row
+        if used:
+            return False, None, "used"
+        if datetime.now() > expires_at:
+            return False, None, "expired"
+        return True, email, None
+    except Exception as e:
+        print(f"❌ Erreur vérification token reset: {e}")
+        return False, None, "error"
+
+def _mark_token_used(token):
+    try:
+        token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE password_resets SET used=1 WHERE token_hash=%s", (token_hash,))
+        mysql.connection.commit()
+        cur.close()
+    except Exception as e:
+        print(f"⚠️ Erreur marquage token utilisé: {e}")
+
+def _send_password_reset_email(email, reset_url):
+    subject = "🔐 Réinitialisation de mot de passe - SecuriBank"
+    body = f"""
+Bonjour,
+
+Si vous avez demandé la réinitialisation de votre mot de passe, cliquez sur le lien ci-dessous:
+
+{reset_url}
+
+Ce lien est valable 1 heure et ne peut être utilisé qu'une seule fois.
+Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email.
+
+Cordialement,
+L'équipe SecuriBank
+"""
+    msg = MIMEMultipart()
+    msg['From'] = SMTP_CONFIG['email']
+    msg['To'] = email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'plain'))
+    try:
+        server = smtplib.SMTP(SMTP_CONFIG['server'], SMTP_CONFIG['port'])
+        server.set_debuglevel(1)
+        if SMTP_CONFIG.get('use_tls'):
+            server.starttls()
+        server.login(SMTP_CONFIG['email'], SMTP_CONFIG['password'])
+        server.sendmail(SMTP_CONFIG['email'], email, msg.as_string())
+        server.quit()
+        print(f"📨 Email de reset envoyé à {email}")
+        print(f"🔗 Lien de réinitialisation généré: {reset_url}")
+        return True
+    except Exception as e:
+        print(f"❌ Erreur envoi email reset: {e}")
         return False
     except smtplib.SMTPRecipientsRefused as e:
         print(f"❌ Destinataire refusé: {e}")
@@ -413,53 +543,99 @@ def signup():
     error = None
     current_language = session.get('language', 'fr')
     if request.method == 'POST':
-        name = request.form['fullname']
-        email = request.form['email']
-        password = request.form['password']
-        verifiedpass = request.form['confirm']
+        name = request.form.get('fullname','').strip()
+        email = request.form.get('email','').strip()
+        password = request.form.get('password','')
+        verifiedpass = request.form.get('confirm','')
 
+        errors = {}
+        # Helper: unicode-friendly name validation
+        def is_valid_name(s: str) -> bool:
+            if len(s) < 3:
+                return False
+            # Allow letters in any language, spaces, apostrophes and dashes
+            allowed_extra = set([" ", "-", "'"])
+            if not (s[0].isalpha()):
+                return False
+            for ch in s:
+                if ch.isalpha() or ch in allowed_extra:
+                    continue
+                return False
+            return True
+
+        # Fullname: at least 3 chars, unicode letters, spaces, dashes/apostrophes
+        if not is_valid_name(name):
+            if current_language == 'ar':
+                errors['fullname'] = "يرجى إدخال اسم صحيح (3 أحرف على الأقل)"
+            elif current_language == 'en':
+                errors['fullname'] = "Please enter a valid name (at least 3 characters)"
+            else:
+                errors['fullname'] = "Veuillez saisir un nom valide (au moins 3 caractères)"
+
+        # Email basic format
+        email_regex = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+        if not re.match(email_regex, email):
+            if current_language == 'ar':
+                errors['email'] = "يرجى إدخال بريد إلكتروني صالح"
+            elif current_language == 'en':
+                errors['email'] = "Please enter a valid email"
+            else:
+                errors['email'] = "Veuillez saisir un email valide"
+
+        # Password strength
+        if len(password) < 8 or not re.search(r"[A-Za-z]", password) or not re.search(r"\d", password):
+            if current_language == 'ar':
+                errors['password'] = "الرجاء إدخال كلمة مرور قوية (8 أحرف على الأقل تشمل حرفًا ورقمًا)"
+            elif current_language == 'en':
+                errors['password'] = "Please enter a strong password (min 8 chars with a letter and a number)"
+            else:
+                errors['password'] = "Veuillez saisir un mot de passe fort (8 caractères min avec une lettre et un chiffre)"
+
+        # Confirm match
         if password != verifiedpass:
             if current_language == 'ar':
-                error = "كلمات المرور غير متطابقة"
+                errors['confirm'] = "يجب أن تتطابق كلمات المرور"
             elif current_language == 'en':
-                error = "Passwords do not match"
+                errors['confirm'] = "Passwords must match"
             else:
-                error = "Les mots de passe ne correspondent pas"
-        else:
-            # Vérifier si l'utilisateur existe déjà
+                errors['confirm'] = "Les mots de passe doivent correspondre"
+
+        # Email uniqueness
+        if 'email' not in errors:
             cur = mysql.connection.cursor()
-            cur.execute("SELECT * FROM signup WHERE email = %s", (email,))
-            user = cur.fetchone()
-            if user:
+            cur.execute("SELECT id FROM signup WHERE email = %s", (email,))
+            if cur.fetchone():
                 if current_language == 'ar':
-                    error = "المستخدم موجود بالفعل"
+                    errors['email'] = "المستخدم موجود بالفعل"
                 elif current_language == 'en':
-                    error = "User already exists"
+                    errors['email'] = "User already exists"
                 else:
-                    error = "Utilisateur déjà existant"
+                    errors['email'] = "Utilisateur déjà existant"
+
+        if errors:
+            # Return with field-specific errors and preserve name/email
+            form_data = {'fullname': name, 'email': email}
+            return render_template('signup.html', error=None, errors=errors, form_data=form_data, current_language=current_language), 400
+
+        # ✅ Nouveau processus d'inscription avec OTP si aucune erreur
+        hashed = generate_password_hash(password)
+        session['pending_signup'] = {
+            'name': name,
+            'email': email,
+            'password': hashed
+        }
+
+        code_otp = generer_code_otp()
+        if sauvegarder_otp(email, code_otp) and envoyer_code_otp_inscription(email, code_otp, name):
+            print(f"🔑 Code OTP d'inscription généré et envoyé pour {email}")
+            return redirect(url_for('verify_signup_otp'))
+        else:
+            if current_language == 'ar':
+                error = "خطأ في إرسال رمز التحقق"
+            elif current_language == 'en':
+                error = "Error sending verification code"
             else:
-                # ✅ Nouveau processus d'inscription avec OTP
-                # 1. Stocker temporairement les données d'inscription
-                hashed = generate_password_hash(password)
-                session['pending_signup'] = {
-                    'name': name,
-                    'email': email,
-                    'password': hashed
-                }
-                
-                # 2. Générer et envoyer le code OTP
-                code_otp = generer_code_otp()
-                
-                if sauvegarder_otp(email, code_otp) and envoyer_code_otp_inscription(email, code_otp, name):
-                    print(f"🔑 Code OTP d'inscription généré et envoyé pour {email}")
-                    return redirect(url_for('verify_signup_otp'))
-                else:
-                    if current_language == 'ar':
-                        error = "خطأ في إرسال رمز التحقق"
-                    elif current_language == 'en':
-                        error = "Error sending verification code"
-                    else:
-                        error = "Erreur lors de l'envoi du code de vérification"
+                error = "Erreur lors de l'envoi du code de vérification"
     return render_template('signup.html', error=error, current_language=current_language)
 
 # 🔐 Page de connexion
@@ -724,6 +900,100 @@ def resend_signup_otp():
         
         return render_template('verify_signup_otp.html', error=error, 
                              current_language=current_language, email=email, name=name)
+
+# =======================
+# Password reset routes
+# =======================
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    current_language = session.get('language', 'fr')
+    message = None
+    error = None
+    dev_reset_url = None
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        submitted_email = email
+        # Normaliser en minuscule pour éviter les problèmes de casse
+        email = email.lower()
+        # Always respond generically
+        message_fr = "Si un compte existe pour cet e-mail, vous recevrez un lien de réinitialisation."
+        message_en = "If an account exists for this email, you will receive a reset link."
+        message_ar = "إذا كان هناك حساب لهذا البريد الإلكتروني، ستتلقى رابط إعادة التعيين."
+        message = message_fr if current_language == 'fr' else (message_en if current_language == 'en' else message_ar)
+
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT id FROM signup WHERE LOWER(email)=LOWER(%s)", (email,))
+            user = cur.fetchone()
+            cur.close()
+            if user:
+                print(f"✅ Compte trouvé pour l'email soumis: {submitted_email}")
+                token, token_hash = _generate_reset_token()
+                if _save_reset_token(email, token_hash):
+                    reset_url = url_for('reset_password', token=token, _external=True)
+                    print(f"🔗 Lien de reset (server log): {reset_url}")
+                    _send_password_reset_email(email, reset_url)
+                    if app.config.get('SHOW_RESET_LINK_DEBUG'):
+                        dev_reset_url = reset_url
+                else:
+                    print("❌ Échec sauvegarde du token reset en base")
+            else:
+                print(f"ℹ️ Aucun compte trouvé pour: {submitted_email}")
+        except Exception as e:
+            print(f"⚠️ forgot_password process error: {e}")
+        # Always render with generic message
+        return render_template('forgot_password.html', message=message, current_language=current_language, dev_reset_url=dev_reset_url)
+    return render_template('forgot_password.html', message=message, current_language=current_language, dev_reset_url=dev_reset_url)
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    current_language = session.get('language', 'fr')
+    error = None
+    success = None
+    is_valid, email, reason = _verify_reset_token(token)
+    if not is_valid:
+        # Do not disclose details, but adapt message per language
+        if current_language == 'ar':
+            error = "رابط غير صالح أو منتهي الصلاحية"
+        elif current_language == 'en':
+            error = "Invalid or expired link"
+        else:
+            error = "Lien invalide ou expiré"
+        return render_template('reset_password.html', error=error, current_language=current_language, token_invalid=True)
+
+    if request.method == 'POST':
+        pwd1 = request.form.get('password')
+        pwd2 = request.form.get('confirm')
+        if not pwd1 or len(pwd1) < 6 or pwd1 != pwd2:
+            if current_language == 'ar':
+                error = "كلمة المرور غير صالحة أو غير متطابقة"
+            elif current_language == 'en':
+                error = "Invalid or mismatched password"
+            else:
+                error = "Mot de passe invalide ou non concordant"
+        else:
+            try:
+                cur = mysql.connection.cursor()
+                cur.execute("UPDATE signup SET password=%s WHERE email=%s", (generate_password_hash(pwd1), email))
+                mysql.connection.commit()
+                cur.close()
+                _mark_token_used(token)
+                if current_language == 'ar':
+                    success = "تم تحديث كلمة المرور بنجاح"
+                elif current_language == 'en':
+                    success = "Password updated successfully"
+                else:
+                    success = "Mot de passe mis à jour avec succès"
+                return render_template('reset_password.html', success=success, current_language=current_language, done=True)
+            except Exception as e:
+                print(f"❌ Erreur maj mot de passe: {e}")
+                if current_language == 'ar':
+                    error = "حدث خطأ. حاول مرة أخرى"
+                elif current_language == 'en':
+                    error = "An error occurred. Please try again"
+                else:
+                    error = "Une erreur s'est produite. Veuillez réessayer"
+    return render_template('reset_password.html', error=error, current_language=current_language)
 
 # 📝 Formulaire de demande de crédit
 @app.route("/demande_credit", methods=["GET", "POST"])

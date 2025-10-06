@@ -20,93 +20,36 @@
   <!-- Core theme CSS (Bootstrap + custom) -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   <style>
-    .login-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      padding: 3rem;
-      border-radius: var(--border-radius-lg);
-      color: var(--text-primary);
-      box-shadow: var(--shadow-heavy);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .login-card h3 {
-      color: var(--primary-color);
-      font-weight: 600;
-      margin-bottom: 2rem;
-    }
-    
-    .form-floating {
-      position: relative;
-      margin-bottom: 1.5rem;
-    }
-    
-    .form-floating .form-control {
-      padding-left: 3rem;
-    }
-    
-    .form-floating .input-icon {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-secondary);
-      font-size: 1.1rem;
-      z-index: 10;
-      pointer-events: none;
-      transition: var(--transition);
-    }
-    
+    .auth-wrapper { min-height: 100vh; display: flex; }
+    .left-pane { flex: 1; display: flex; align-items: center; justify-content: center; padding: 32px 48px; background: #ffffff; }
+    .right-pane { flex: 1; background-color: #1f2b46; color: #fff; position: relative; display: none; overflow: hidden; }
+    .right-pane .overlay { position: relative; z-index: 1; height: 100%; padding: 48px; display: flex; flex-direction: column; justify-content: center; }
+    .hero { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+    .hero img { width: 100%; height: 100%; object-fit: cover; transition: opacity .35s ease; }
+    .dots { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 2; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.5); transition: opacity .3s, transform .3s; cursor: pointer; }
+    @keyframes dotPulse { 0%{transform: scale(1)} 50%{transform: scale(1.25)} 100%{transform: scale(1)} }
+    .dot.active { background: #fff; transform: scale(1.05); animation: dotPulse 3s ease-in-out infinite; }
+    .card-form { width: 100%; max-width: 460px; }
+    .card-form h3 { color: var(--primary-color); font-weight: 600; margin-bottom: 1.25rem; }
+    .form-floating { position: relative; margin-bottom: 1.25rem; }
+    .form-floating .form-control { padding-left: 3rem; }
+    .form-floating .input-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 1.1rem; z-index: 10; pointer-events: none; transition: var(--transition); }
     .form-floating .form-control:focus ~ .input-icon,
-    .form-floating .form-control:not(:placeholder-shown) ~ .input-icon {
-      color: var(--primary-color);
-    }
-    
-    .form-floating label {
-      color: var(--text-secondary);
-      font-weight: 500;
-      padding-left: 3rem;
-    }
-    
-    .form-floating .form-control:focus ~ label,
-    .form-floating .form-control:not(:placeholder-shown) ~ label {
-      color: var(--primary-color);
-    }
-    
-    .form-check-label {
-      color: var(--text-primary);
-      font-weight: 400;
-    }
-    
-    .login-links a {
-      color: var(--primary-color);
-      text-decoration: none;
-      font-weight: 500;
-      transition: var(--transition);
-    }
-    
-    .login-links a:hover {
-      color: var(--primary-dark);
-      text-decoration: underline;
-    }
-    
-    @media (max-width: 768px) {
-      .login-card {
-        padding: 2rem;
-        margin: 1rem;
-      }
-    }
+    .form-floating .form-control:not(:placeholder-shown) ~ .input-icon { color: var(--primary-color); }
+    .form-floating label { color: var(--text-secondary); font-weight: 500; padding-left: 3rem; }
+    .form-check-label { color: var(--text-primary); font-weight: 400; }
+    .login-links a { color: var(--primary-color); text-decoration: none; font-weight: 500; transition: var(--transition); }
+    .login-links a:hover { color: var(--primary-dark); text-decoration: underline; }
+    @media (min-width: 992px) { .right-pane { display: block; } }
   </style>
 </head>
 <body>
   {% include 'navbar.html' %}
 
-  <!-- Masthead avec formulaire de connexion -->
-  <header class="masthead">
-    <div class="container px-4 px-lg-5 h-100">
-      <div class="row gx-4 gx-lg-5 h-100 align-items-center justify-content-center text-center">
-        <div class="col-lg-6">
-          <div class="login-card">
+  <div class="auth-wrapper">
+    <div class="left-pane">
+      <div class="card-form text-start">
             {% if current_language == 'ar' %}
               <h3><i class="bi-lock-fill"></i> تسجيل الدخول إلى SecuriBank</h3>
             {% elif current_language == 'en' %}
@@ -125,7 +68,7 @@
               </div>
             {% endif %}
 
-            <form method="POST" class="mt-4">
+            <form method="POST" class="mt-2">
               <div class="form-floating mb-3">
                 <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com" required>
                 <i class="bi bi-envelope input-icon"></i>
@@ -164,11 +107,11 @@
                   {% endif %}
                 </div>
                 {% if current_language == 'ar' %}
-                  <a href="#"><i class="bi bi-question-circle me-1"></i>نسيت كلمة المرور؟</a>
+                  <a href="{{ url_for('forgot_password') }}"><i class="bi bi-question-circle me-1"></i>نسيت كلمة المرور؟</a>
                 {% elif current_language == 'en' %}
-                  <a href="#"><i class="bi bi-question-circle me-1"></i>Forgot password?</a>
+                  <a href="{{ url_for('forgot_password') }}"><i class="bi bi-question-circle me-1"></i>Forgot password?</a>
                 {% else %}
-                  <a href="#"><i class="bi bi-question-circle me-1"></i>Mot de passe oublié ?</a>
+                  <a href="{{ url_for('forgot_password') }}"><i class="bi bi-question-circle me-1"></i>Mot de passe oublié ?</a>
                 {% endif %}
               </div>
               {% if current_language == 'ar' %}
@@ -194,13 +137,57 @@
                 </div>
               {% endif %}
             </form>
-          </div>
-        </div>
       </div>
     </div>
-  </header>
+    <div class="right-pane">
+      <div class="hero">
+        <img id="heroImage" src="{{ url_for('static', filename='assets/img/Image1.png') }}" alt="slide" />
+      </div>
+      <div class="dots" id="dots">
+        <span class="dot active" data-index="0" role="button" aria-label="slide 1"></span>
+        <span class="dot" data-index="1" role="button" aria-label="slide 2"></span>
+        <span class="dot" data-index="2" role="button" aria-label="slide 3"></span>
+      </div>
+      <div class="overlay"></div>
+    </div>
+  </div>
 
   <!-- Bootstrap core JS-->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function(){
+      const imgs = [
+        "{{ url_for('static', filename='assets/img/1.png') }}",
+        "{{ url_for('static', filename='assets/img/2.png') }}",
+        "{{ url_for('static', filename='assets/img/3.png') }}",
+        "{{ url_for('static', filename='assets/img/Image1.png') }}",
+        "{{ url_for('static', filename='assets/img/Image2.png') }}",
+        "{{ url_for('static', filename='assets/img/Image3.png') }}",
+      ];
+      const imgEl = document.getElementById('heroImage');
+      const dotsWrap = document.getElementById('dots');
+      if (!imgEl || !dotsWrap) return;
+      const dots = Array.from(dotsWrap.children);
+      let idx = 0;
+      function show(i){
+        idx = i % imgs.length;
+        imgEl.style.opacity = 0;
+        setTimeout(()=>{
+          imgEl.onload = () => { imgEl.style.opacity = 1; };
+          imgEl.onerror = () => { show(idx+1); };
+          imgEl.src = imgs[idx];
+        }, 150);
+        dots.forEach((d,di)=>d.classList.toggle('active', di===idx % 3));
+      }
+      let timer = setInterval(()=> show(idx+1), 3000);
+      dots.forEach((d,di)=>{
+        d.addEventListener('click', ()=>{
+          clearInterval(timer);
+          show(di);
+          timer = setInterval(()=> show(idx+1), 3000);
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

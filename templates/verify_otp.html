@@ -15,117 +15,38 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <style>
-        .otp-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem 0;
-        }
-        
-        .otp-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 3rem;
-            border-radius: var(--border-radius-lg);
-            color: var(--text-primary);
-            box-shadow: var(--shadow-heavy);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            width: 100%;
-            max-width: 450px;
-            text-align: center;
-        }
-        
-        .otp-icon {
-            font-size: 4rem;
-            color: var(--primary-color);
-            margin-bottom: 1.5rem;
-        }
-        
-        .otp-input {
-            font-size: 2rem;
-            text-align: center;
-            letter-spacing: 0.5rem;
-            padding: 1rem;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            background: #f8f9fa;
-            color: var(--text-primary);
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .otp-input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(244, 98, 58, 0.25);
-            background: #ffffff;
-        }
-        
-        .email-display {
-            background: #f8f9fa;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-            color: var(--text-secondary);
-            font-family: monospace;
-            margin: 1rem 0;
-        }
-        
-        .countdown-timer {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin: 1rem 0;
-        }
-        
-        .resend-section {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #e9ecef;
-        }
-        
-        .btn-resend {
-            background: transparent;
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-resend:hover {
-            background: var(--primary-color);
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        .btn-resend:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .security-notice {
-            background: rgba(244, 98, 58, 0.1);
-            border: 1px solid rgba(244, 98, 58, 0.3);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1.5rem;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
+        .auth-wrapper { min-height: 100vh; display: flex; }
+        .left-pane { flex: 1; display: flex; align-items: center; justify-content: center; padding: 32px 48px; background: #ffffff; }
+        .right-pane { flex: 1; background-color: #1f2b46; color: #fff; position: relative; display: none; overflow: hidden; }
+        .right-pane .overlay { position: relative; z-index: 1; height: 100%; padding: 48px; display: flex; flex-direction: column; justify-content: center; }
+        .hero { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+        .hero img { width: 100%; height: 100%; object-fit: cover; transition: opacity .35s ease; }
+        .dots { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 2; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.5); transition: opacity .3s, transform .3s; cursor: pointer; }
+        @keyframes dotPulse { 0%{transform: scale(1)} 50%{transform: scale(1.25)} 100%{transform: scale(1)} }
+        .dot.active { background: #fff; transform: scale(1.05); animation: dotPulse 3s ease-in-out infinite; }
+        .card-form { width: 100%; max-width: 460px; text-align: center; }
+        .otp-icon { font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem; }
+        .otp-input { font-size: 2rem; text-align: center; letter-spacing: 0.5rem; padding: 1rem; border: 2px solid #e9ecef; border-radius: 12px; background: #f8f9fa; color: var(--text-primary); font-weight: 600; transition: all 0.3s ease; }
+        .otp-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(244, 98, 58, 0.25); background: #ffffff; }
+        .email-display { background: #f8f9fa; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid #e9ecef; color: var(--text-secondary); font-family: monospace; margin: 1rem 0; }
+        .countdown-timer { font-size: 1.1rem; font-weight: 600; color: var(--primary-color); margin: 1rem 0; }
+        .resend-section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e9ecef; }
+        .btn-resend { background: transparent; border: 2px solid var(--primary-color); color: var(--primary-color); padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
+        .btn-resend:hover { background: var(--primary-color); color: white; transform: translateY(-2px); }
+        .btn-resend:disabled { opacity: 0.5; cursor: not-allowed; }
+        .security-notice { background: rgba(244, 98, 58, 0.1); border: 1px solid rgba(244, 98, 58, 0.3); border-radius: 8px; padding: 1rem; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
+        @media (min-width: 992px) { .right-pane { display: block; } }
     </style>
 </head>
 <body>
     {% include 'navbar.html' %}
     
-    <div class="otp-container">
-        <div class="otp-card">
-            <div class="otp-icon">
-                <i class="bi bi-shield-lock"></i>
-            </div>
-            
-            <h2 class="mb-3">
+    <div class="auth-wrapper">
+        <div class="left-pane">
+            <div class="card-form">
+                <div class="otp-icon"><i class="bi bi-shield-lock"></i></div>
+                <h2 class="mb-2">
                 {% if current_language == 'ar' %}
                     التحقق من الهوية
                 {% elif current_language == 'en' %}
@@ -133,9 +54,8 @@
                 {% else %}
                     Vérification d'identité
                 {% endif %}
-            </h2>
-            
-            <p class="text-muted mb-4">
+                </h2>
+                <p class="text-muted mb-3">
                 {% if current_language == 'ar' %}
                     أدخل الرمز المرسل إلى بريدك الإلكتروني
                 {% elif current_language == 'en' %}
@@ -143,101 +63,54 @@
                 {% else %}
                     Saisissez le code envoyé à votre email
                 {% endif %}
-            </p>
-            
-            <div class="email-display">
-                <i class="bi bi-envelope me-2"></i>{{ email }}
-            </div>
-            
-            {% if error %}
-                <div class="alert alert-danger" role="alert">
-                    <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
-                </div>
-            {% endif %}
-            
-            {% if success %}
-                <div class="alert alert-success" role="alert">
-                    <i class="bi bi-check-circle me-2"></i>{{ success }}
-                </div>
-            {% endif %}
-            
-            <form method="POST" class="mt-4">
-                <div class="mb-4">
-                    <input type="text" 
-                           class="form-control otp-input" 
-                           id="otp_code" 
-                           name="otp_code" 
-                           maxlength="6" 
-                           pattern="[0-9]{6}"
-                           placeholder="000000"
-                           autocomplete="one-time-code"
-                           required>
-                </div>
-                
-                <div class="countdown-timer" id="countdown">
-                    ⏰ Code valable pendant : <span id="timer">5:00</span>
-                </div>
-                
-                <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
-                    <i class="bi bi-check-circle me-2"></i>
-                    {% if current_language == 'ar' %}
-                        تأكيد الرمز
-                    {% elif current_language == 'en' %}
-                        Verify Code
-                    {% else %}
-                        Vérifier le code
-                    {% endif %}
-                </button>
-            </form>
-            
-            <div class="resend-section">
-                <p class="text-muted mb-3">
-                    {% if current_language == 'ar' %}
-                        لم تستلم الرمز؟
-                    {% elif current_language == 'en' %}
-                        Didn't receive the code?
-                    {% else %}
-                        Vous n'avez pas reçu le code ?
-                    {% endif %}
                 </p>
-                
-                <form method="POST" action="{{ url_for('resend_otp') }}" style="display: inline;">
-                    <button type="submit" class="btn btn-resend" id="resendBtn">
-                        <i class="bi bi-arrow-clockwise me-2"></i>
-                        {% if current_language == 'ar' %}
-                            إعادة إرسال الرمز
-                        {% elif current_language == 'en' %}
-                            Resend Code
-                        {% else %}
-                            Renvoyer le code
-                        {% endif %}
+                <div class="email-display"><i class="bi bi-envelope me-2"></i>{{ email }}</div>
+                {% if error %}
+                    <div class="alert alert-danger" role="alert"><i class="bi bi-exclamation-triangle me-2"></i>{{ error }}</div>
+                {% endif %}
+                {% if success %}
+                    <div class="alert alert-success" role="alert"><i class="bi bi-check-circle me-2"></i>{{ success }}</div>
+                {% endif %}
+                <form method="POST" class="mt-3">
+                    <div class="mb-3">
+                        <input type="text" class="form-control otp-input" id="otp_code" name="otp_code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" autocomplete="one-time-code" required>
+                    </div>
+                    <div class="countdown-timer" id="countdown">⏰ Code valable pendant : <span id="timer">5:00</span></div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                        <i class="bi bi-check-circle me-2"></i>
+                        {% if current_language == 'ar' %}تأكيد الرمز{% elif current_language == 'en' %}Verify Code{% else %}Vérifier le code{% endif %}
                     </button>
                 </form>
+                <div class="resend-section">
+                    <p class="text-muted mb-3">
+                        {% if current_language == 'ar' %}لم تستلم الرمز؟{% elif current_language == 'en' %}Didn't receive the code?{% else %}Vous n'avez pas reçu le code ?{% endif %}
+                    </p>
+                    <form method="POST" action="{{ url_for('resend_otp') }}" style="display: inline;">
+                        <button type="submit" class="btn btn-resend" id="resendBtn">
+                            <i class="bi bi-arrow-clockwise me-2"></i>
+                            {% if current_language == 'ar' %}إعادة إرسال الرمز{% elif current_language == 'en' %}Resend Code{% else %}Renvoyer le code{% endif %}
+                        </button>
+                    </form>
+                </div>
+                <div class="security-notice">
+                    <i class="bi bi-info-circle me-2"></i>
+                    {% if current_language == 'ar' %}لأمانك، لا تشارك هذا الرمز مع أي شخص{% elif current_language == 'en' %}For your security, never share this code with anyone{% else %}Pour votre sécurité, ne partagez jamais ce code{% endif %}
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('login') }}" class="text-decoration-none"><i class="bi bi-arrow-left me-2"></i>{% if current_language == 'ar' %}العودة إلى تسجيل الدخول{% elif current_language == 'en' %}Back to Login{% else %}Retour à la connexion{% endif %}</a>
+                </div>
             </div>
-            
-            <div class="security-notice">
-                <i class="bi bi-info-circle me-2"></i>
-                {% if current_language == 'ar' %}
-                    لأمانك، لا تشارك هذا الرمز مع أي شخص
-                {% elif current_language == 'en' %}
-                    For your security, never share this code with anyone
-                {% else %}
-                    Pour votre sécurité, ne partagez jamais ce code
-                {% endif %}
+        </div>
+        <div class="right-pane">
+            <div class="hero">
+                <img id="heroImage" src="{{ url_for('static', filename='assets/img/Image1.png') }}" alt="slide" />
             </div>
-            
-            <div class="mt-3">
-                <a href="{{ url_for('login') }}" class="text-decoration-none">
-                    <i class="bi bi-arrow-left me-2"></i>
-                    {% if current_language == 'ar' %}
-                        العودة إلى تسجيل الدخول
-                    {% elif current_language == 'en' %}
-                        Back to Login
-                    {% else %}
-                        Retour à la connexion
-                    {% endif %}
-                </a>
+            <div class="dots" id="dots">
+                <span class="dot active" data-index="0" role="button" aria-label="slide 1"></span>
+                <span class="dot" data-index="1" role="button" aria-label="slide 2"></span>
+                <span class="dot" data-index="2" role="button" aria-label="slide 3"></span>
             </div>
+            <div class="overlay"></div>
         </div>
     </div>
     
@@ -295,6 +168,41 @@
                 }, 500);
             }
         });
+
+        // Carousel images 1.png, 2.png, 3.png (avec fallbacks)
+        (function(){
+          const imgs = [
+            "{{ url_for('static', filename='assets/img/1.png') }}",
+            "{{ url_for('static', filename='assets/img/2.png') }}",
+            "{{ url_for('static', filename='assets/img/3.png') }}",
+            "{{ url_for('static', filename='assets/img/Image1.png') }}",
+            "{{ url_for('static', filename='assets/img/Image2.png') }}",
+            "{{ url_for('static', filename='assets/img/Image3.png') }}",
+          ];
+          const imgEl = document.getElementById('heroImage');
+          const dotsWrap = document.getElementById('dots');
+          if (!imgEl || !dotsWrap) return;
+          const dots = Array.from(dotsWrap.children);
+          let idx = 0;
+          function show(i){
+            idx = i % imgs.length;
+            imgEl.style.opacity = 0;
+            setTimeout(()=>{
+              imgEl.onload = () => { imgEl.style.opacity = 1; };
+              imgEl.onerror = () => { show(idx+1); };
+              imgEl.src = imgs[idx];
+            }, 150);
+            dots.forEach((d,di)=>d.classList.toggle('active', di===idx % 3));
+          }
+          let timer = setInterval(()=> show(idx+1), 3000);
+          dots.forEach((d,di)=>{
+            d.addEventListener('click', ()=>{
+              clearInterval(timer);
+              show(di);
+              timer = setInterval(()=> show(idx+1), 3000);
+            });
+          });
+        })();
     </script>
 </body>
 </html>
