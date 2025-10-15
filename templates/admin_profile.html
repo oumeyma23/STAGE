@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            overflow-x: hidden;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .sidebar-header {
+            padding: 25px 20px;
+            background: #1a252f;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar-header h3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0;
+            color: white;
+        }
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        .menu-item {
+            display: block;
+            padding: 15px 20px;
+            color: #b8c7ce;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        .menu-item:hover,
+        .menu-item.active {
+            background: rgba(255,255,255,0.05);
+            color: white;
+            border-left-color: #3498db;
+        }
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        .main-content {
+            margin-left: 250px;
+            min-height: 100vh;
+            background: #f5f7fa;
+        }
+        .top-bar {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .search-bar {
+            flex: 1;
+            max-width: 400px;
+        }
+        .search-bar input {
+            border-radius: 20px;
+            border: 1px solid #e0e0e0;
+            padding: 8px 20px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .btn-profile {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .btn-logout {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .content-area {
+            padding: 30px;
+        }
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: none;
+            width: 100%;
+            max-width: 100%;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            padding: 10px 15px;
+        }
+        .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52,152,219,0.25);
+        }
+        .btn-save {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+        .btn-save:hover {
+            background: #2980b9;
+            color: white;
+        }
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .profile-icon {
+            font-size: 5rem;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        hr {
+            margin: 30px 0;
+            border-color: #e0e0e0;
+        }
+        h5 {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>SecuriBank</h3>
+        </div>
+        <div class="sidebar-menu">
+            <a href="{{ url_for('admin_dashboard') }}" class="menu-item">
+                <i class="bi bi-grid-fill"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin_users') }}" class="menu-item">
+                <i class="bi bi-people-fill"></i> Clients
+            </a>
+            <a href="{{ url_for('admin_credits') }}" class="menu-item">
+                <i class="bi bi-file-earmark-text-fill"></i> Liste des Crédits
+            </a>
+            <a href="{{ url_for('admin_profile') }}" class="menu-item active">
+                <i class="bi bi-person-circle"></i> Profil
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="search-bar">
+                <input type="text" class="form-control" placeholder="Search...">
+            </div>
+            <div class="user-info">
+                <a href="{{ url_for('admin_profile') }}" class="btn btn-profile">
+                    Profil ADMIN
+                </a>
+                <a href="{{ url_for('logout') }}" class="btn btn-logout">
+                    Déconnexion
+                </a>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <h1 class="page-title">Mon Profil</h1>
+
+            <div class="card">
+                <div class="profile-header">
+                    <i class="bi bi-person-circle profile-icon"></i>
+                    <h3>{{ profile.name }}</h3>
+                    <p class="text-muted">Administrateur</p>
+                </div>
+
+                {% if success %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i> {{ success }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                {% if error %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                <form method="POST" onsubmit="return validateForm()">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Nom complet</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ profile.name }}" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ profile.email }}" required>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h5 class="mb-3">Changer le mot de passe</h5>
+                    <p class="text-muted small mb-3">
+                        <i class="bi bi-info-circle"></i> Laissez les champs vides si vous ne souhaitez pas modifier votre mot de passe
+                    </p>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="new_password" class="form-label">Nouveau mot de passe</label>
+                            <input type="password" class="form-control" id="new_password" name="new_password">
+                            <small class="text-muted">Au moins 8 caractères avec une lettre et un chiffre</small>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="confirm_password" class="form-label">Confirmer le nouveau mot de passe</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                            <small class="text-muted">Répétez le nouveau mot de passe</small>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-save w-100 mt-3">
+                        <i class="bi bi-save"></i> Enregistrer les modifications
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function validateForm() {
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            
+            // Si un mot de passe est fourni, vérifier les validations
+            if (newPassword) {
+                // Vérifier la longueur minimale
+                if (newPassword.length < 8) {
+                    alert('Le mot de passe doit contenir au moins 8 caractères');
+                    return false;
+                }
+                
+                // Vérifier qu'il contient au moins une lettre
+                if (!/[A-Za-z]/.test(newPassword)) {
+                    alert('Le mot de passe doit contenir au moins une lettre');
+                    return false;
+                }
+                
+                // Vérifier qu'il contient au moins un chiffre
+                if (!/\d/.test(newPassword)) {
+                    alert('Le mot de passe doit contenir au moins un chiffre');
+                    return false;
+                }
+                
+                // Vérifier que les deux mots de passe correspondent
+                if (newPassword !== confirmPassword) {
+                    alert('Les mots de passe ne correspondent pas');
+                    return false;
+                }
+            } else if (confirmPassword) {
+                // Si seule la confirmation est remplie
+                alert('Veuillez également remplir le champ "Nouveau mot de passe"');
+                return false;
+            }
+            
+            return true;
+        }
+    </script>
+</body>
+</html>

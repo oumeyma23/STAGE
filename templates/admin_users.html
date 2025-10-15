@@ -3,88 +3,287 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Utilisateurs - Admin</title>
+    <title>Gestion des Clients - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .container-custom {
-            padding: 30px 0;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            overflow-x: hidden;
+        }
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .sidebar-header {
+            padding: 25px 20px;
+            background: #1a252f;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar-header h3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0;
+            color: white;
+        }
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        .menu-item {
+            display: block;
+            padding: 15px 20px;
+            color: #b8c7ce;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        .menu-item:hover,
+        .menu-item.active {
+            background: rgba(255,255,255,0.05);
+            color: white;
+            border-left-color: #3498db;
+        }
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        /* Main content */
+        .main-content {
+            margin-left: 250px;
+            min-height: 100vh;
+            background: #f5f7fa;
+        }
+        .top-bar {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .search-bar {
+            flex: 1;
+            max-width: 400px;
+        }
+        .search-bar input {
+            border-radius: 20px;
+            border: 1px solid #e0e0e0;
+            padding: 8px 20px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .btn-profile {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .btn-logout {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .content-area {
+            padding: 30px;
+        }
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c3e50;
         }
         .card {
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             border: none;
         }
-        .navbar-custom {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 15px 0;
-            margin-bottom: 30px;
-        }
-        .badge-admin {
-            background: #667eea;
-        }
-        .badge-client {
-            background: #43e97b;
-        }
-        .btn-action {
-            padding: 5px 10px;
-            font-size: 0.875rem;
+        .table {
+            margin-top: 20px;
         }
         .table thead {
             background: #f8f9fa;
         }
+        .table thead th {
+            border: none;
+            font-weight: 600;
+            color: #2c3e50;
+            padding: 15px;
+        }
+        .table tbody td {
+            padding: 15px;
+            vertical-align: middle;
+        }
+        .badge-client {
+            background: #3498db;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+        .badge-admin {
+            background: #e74c3c;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+        .btn-action {
+            padding: 6px 12px;
+            font-size: 0.875rem;
+            margin: 0 3px;
+        }
+        .btn-add-client {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .btn-add-client:hover {
+            background: #229954;
+        }
+        .search-box {
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            padding: 10px 15px;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination {
+            display: flex;
+            gap: 5px;
+        }
+        .pagination button {
+            padding: 8px 15px;
+            border: 1px solid #dee2e6;
+            background: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .pagination button:hover:not(:disabled) {
+            background: #3498db;
+            color: white;
+        }
+        .pagination button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .pagination button.active {
+            background: #3498db;
+            color: white;
+        }
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-custom">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('admin_dashboard') }}">
-                <i class="bi bi-arrow-left-circle"></i> Retour au Dashboard
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>SecuriBank</h3>
+        </div>
+        <div class="sidebar-menu">
+            <a href="{{ url_for('admin_dashboard') }}" class="menu-item">
+                <i class="bi bi-grid-fill"></i> Dashboard
             </a>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3">
-                    <i class="bi bi-person-circle"></i> {{ user_name }}
-                </span>
-                <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">
-                    <i class="bi bi-box-arrow-right"></i> Déconnexion
+            <a href="{{ url_for('admin_users') }}" class="menu-item active">
+                <i class="bi bi-people-fill"></i> Clients
+            </a>
+            <a href="{{ url_for('admin_credits') }}" class="menu-item">
+                <i class="bi bi-file-earmark-text-fill"></i> Liste des Crédits
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h4 style="margin: 0; color: #2c3e50;">Gestion des Clients</h4>
+            </div>
+            <div class="user-info">
+                <a href="{{ url_for('logout') }}" class="btn btn-logout">
+                    Déconnexion
                 </a>
             </div>
         </div>
-    </nav>
 
-    <div class="container container-custom">
-        <div class="card">
-            <div class="card-header bg-white">
-                <h3><i class="bi bi-people"></i> Gestion des Utilisateurs</h3>
-                <p class="text-muted mb-0">Liste de tous les utilisateurs enregistrés</p>
+        <!-- Content Area -->
+        <div class="content-area">
+            <h1 class="page-title">Gestion des Clients</h1>
+
+            {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i> {{ error }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
-            <div class="card-body">
-                {% if error %}
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-triangle"></i> {{ error }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                {% endif %}
+            {% endif %}
 
-                <div id="successMessage" class="alert alert-success alert-dismissible fade show d-none" role="alert">
-                    <i class="bi bi-check-circle"></i> <span id="successText"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <div id="successMessage" class="alert alert-success alert-dismissible fade show d-none" role="alert">
+                <i class="bi bi-check-circle"></i> <span id="successText"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div id="errorMessage" class="alert alert-danger alert-dismissible fade show d-none" role="alert">
+                <i class="bi bi-exclamation-triangle"></i> <span id="errorText"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="card">
+                <div class="header-actions">
+                    <h5 style="margin: 0;">Liste des Clients</h5>
+                    <button type="button" class="btn btn-add-client" data-bs-toggle="modal" data-bs-target="#addClientModal">
+                        <i class="bi bi-plus-circle"></i> Ajouter Client
+                    </button>
                 </div>
 
-                <div id="errorMessage" class="alert alert-danger alert-dismissible fade show d-none" role="alert">
-                    <i class="bi bi-exclamation-triangle"></i> <span id="errorText"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <!-- Barre de recherche -->
+                <div class="search-box">
+                    <input type="text" id="searchInput" class="form-control" placeholder="🔍 Rechercher par nom ou email..." onkeyup="filterClients()">
                 </div>
 
                 {% if users %}
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover" id="clientsTable">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -94,48 +293,151 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="clientsTableBody">
                             {% for user in users %}
-                            <tr id="user-row-{{ user.id }}">
+                            <tr class="client-row" data-name="{{ user.name|lower }}" data-email="{{ user.email|lower }}" id="user-row-{{ user.id }}">
                                 <td>{{ user.id }}</td>
                                 <td>{{ user.name }}</td>
                                 <td>{{ user.email }}</td>
                                 <td>
-                                    <span class="badge {% if user.role == 'admin' %}badge-admin{% else %}badge-client{% endif %}" id="role-badge-{{ user.id }}">
-                                        {% if user.role == 'admin' %}
-                                        <i class="bi bi-shield-check"></i> Admin
-                                        {% else %}
+                                    <span class="badge-client" id="role-badge-{{ user.id }}">
                                         <i class="bi bi-person"></i> Client
-                                        {% endif %}
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-action" onclick="changeRole({{ user.id }}, '{% if user.role == 'admin' %}client{% else %}admin{% endif %}')">
-                                            <i class="bi bi-arrow-repeat"></i> 
-                                            {% if user.role == 'admin' %}Passer Client{% else %}Passer Admin{% endif %}
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-outline-danger btn-action" onclick="deleteUser({{ user.id }}, '{{ user.name }}')">
-                                            <i class="bi bi-trash"></i> Supprimer
-                                        </button>
-                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger btn-action" onclick="deleteUser({{ user.id }}, '{{ user.name }}')">
+                                        <i class="bi bi-trash"></i> Supprimer
+                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination -->
+                <div class="pagination-container">
+                    <div class="pagination" id="paginationControls"></div>
+                </div>
                 {% else %}
                 <div class="alert alert-info">
-                    <i class="bi bi-info-circle"></i> Aucun utilisateur trouvé.
+                    <i class="bi bi-info-circle"></i> Aucun client trouvé.
                 </div>
                 {% endif %}
             </div>
         </div>
     </div>
 
+    <!-- Modal Ajout Client -->
+    <div class="modal fade" id="addClientModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ajouter un Nouveau Client</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="addClientForm" method="POST" action="{{ url_for('admin_add_client') }}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Nom Complet *</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Adresse</label>
+                            <input type="text" class="form-control" name="address" placeholder="Adresse complète">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mot de passe *</label>
+                            <input type="password" class="form-control" name="password" required minlength="8">
+                            <small class="text-muted">Minimum 8 caractères</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Ajouter Client</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Variables de pagination
+        let currentPage = 1;
+        const rowsPerPage = 5;
+        let allRows = [];
+        let filteredRows = [];
+
+        function initTable() {
+            allRows = Array.from(document.querySelectorAll('.client-row'));
+            filteredRows = allRows;
+            showPage(1);
+        }
+
+        function filterClients() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredRows = allRows.filter(row => {
+                const name = row.getAttribute('data-name');
+                const email = row.getAttribute('data-email');
+                return name.includes(searchTerm) || email.includes(searchTerm);
+            });
+
+            currentPage = 1;
+            showPage(1);
+        }
+
+        function showPage(page) {
+            currentPage = page;
+            
+            // Cacher toutes les lignes
+            allRows.forEach(row => row.style.display = 'none');
+            
+            // Afficher seulement les lignes de la page actuelle
+            const start = (page - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const pageRows = filteredRows.slice(start, end);
+            
+            pageRows.forEach(row => row.style.display = '');
+
+            // Mettre à jour les boutons de pagination
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+            const paginationDiv = document.getElementById('paginationControls');
+            
+            if (totalPages <= 1) {
+                paginationDiv.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            
+            // Bouton Précédent
+            html += `<button onclick="showPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                        <i class="bi bi-chevron-left"></i> Précédent
+                     </button>`;
+            
+            // Numéros de page
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button onclick="showPage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
+            }
+            
+            // Bouton Suivant
+            html += `<button onclick="showPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                        Suivant <i class="bi bi-chevron-right"></i>
+                     </button>`;
+            
+            paginationDiv.innerHTML = html;
+        }
+
         function showSuccess(message) {
             const successDiv = document.getElementById('successMessage');
             document.getElementById('successText').textContent = message;
@@ -150,36 +452,8 @@
             setTimeout(() => errorDiv.classList.add('d-none'), 5000);
         }
 
-        function changeRole(userId, newRole) {
-            if (!confirm(`Êtes-vous sûr de vouloir changer ce rôle en ${newRole}?`)) {
-                return;
-            }
-
-            fetch(`/admin/users/${userId}/change_role`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `role=${newRole}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showSuccess(data.message);
-                    // Recharger la page pour voir les changements
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    showError(data.message);
-                }
-            })
-            .catch(error => {
-                showError('Erreur de connexion au serveur');
-                console.error('Error:', error);
-            });
-        }
-
         function deleteUser(userId, userName) {
-            if (!confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur "${userName}"?\nCette action est irréversible!`)) {
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer le client "${userName}"?\nCette action est irréversible!`)) {
                 return;
             }
 
@@ -190,11 +464,13 @@
             .then(data => {
                 if (data.success) {
                     showSuccess(data.message);
-                    // Supprimer la ligne du tableau
                     const row = document.getElementById(`user-row-${userId}`);
                     if (row) {
                         row.style.opacity = '0';
-                        setTimeout(() => row.remove(), 500);
+                        setTimeout(() => {
+                            row.remove();
+                            initTable();
+                        }, 500);
                     }
                 } else {
                     showError(data.message);
@@ -205,6 +481,36 @@
                 console.error('Error:', error);
             });
         }
+
+        // Formulaire d'ajout de client
+        document.getElementById('addClientForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccess(data.message);
+                    bootstrap.Modal.getInstance(document.getElementById('addClientModal')).hide();
+                    this.reset();
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showError(data.message);
+                }
+            })
+            .catch(error => {
+                showError('Erreur de connexion au serveur');
+                console.error('Error:', error);
+            });
+        });
+
+        // Initialiser au chargement de la page
+        window.addEventListener('DOMContentLoaded', initTable);
     </script>
 </body>
 </html>
