@@ -737,10 +737,25 @@ def verify_otp():
             
             if is_valid:
                 # ✅ Code valide - Connexion réussie
+                # Récupérer les informations de l'utilisateur incluant le rôle
+                cur = mysql.connection.cursor()
+                cur.execute("SELECT id, name, email, role FROM signup WHERE email = %s", (email,))
+                user_data = cur.fetchone()
+                cur.close()
+                
                 session['user'] = email
+                session['user_id'] = user_data[0] if user_data else None
+                session['user_name'] = user_data[1] if user_data else None
+                session['user_role'] = user_data[3] if user_data else 'client'
                 session.pop('pending_login', None)  # Nettoyer la session temporaire
-                print(f"✅ Connexion réussie avec OTP pour {email}")
-                return redirect(url_for('accueil'))
+                
+                print(f"✅ Connexion réussie avec OTP pour {email} (rôle: {session.get('user_role', 'client')})")
+                
+                # Redirection selon le rôle
+                if session.get('user_role') == 'admin':
+                    return redirect(url_for('admin_dashboard'))
+                else:
+                    return redirect(url_for('accueil'))
             else:
                 # ❌ Code invalide
                 if message == "Code expiré":
@@ -838,8 +853,9 @@ def verify_signup_otp():
                 # ✅ Code valide - Finaliser l'inscription
                 try:
                     cur = mysql.connection.cursor()
-                    cur.execute("INSERT INTO signup (name, email, password) VALUES (%s, %s, %s)", 
-                              (signup_data['name'], signup_data['email'], signup_data['password']))
+                    # 👤 Tous les nouveaux utilisateurs sont des clients par défaut
+                    cur.execute("INSERT INTO signup (name, email, password, role) VALUES (%s, %s, %s, %s)", 
+                              (signup_data['name'], signup_data['email'], signup_data['password'], 'client'))
                     mysql.connection.commit()
                     cur.close()
                     
@@ -1375,10 +1391,160 @@ def verify_face():
         print("❌ Trace complète DeepFace :", traceback_str)
         return jsonify({'message': f'❌ Erreur DeepFace : {str(e)}'}), 500
 
-# 🔓 Déconnexion
+# � Décorateur pour protéger les routes admin
+def admin_required(f):
+    """Décorateur pour protéger les routes admin"""
+    from functools import wraps
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in session:
+            return redirect(url_for('login'))
+        if session.get('user_role') != 'admin':
+            return redirect(url_for('accueil'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# 🔐 Décorateur pour protéger les routes client
+def login_required(f):
+    """Décorateur pour protéger les routes nécessitant une connexion"""
+    from functools import wraps
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# 📊 Dashboard Admin
+@app.route('/admin/dashboard')
+@admin_required
+def admin_dashboard():
+    current_language = session.get('language', 'fr')
+    
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Statistiques générales
+        cur.execute("SELECT COUNT(*) FROM signup WHERE role = 'client'")
+        total_clients = cur.fetchone()[0]
+        
+        cur.execute("SELECT COUNT(*) FROM signup WHERE role = 'admin'")
+        total_admins = cur.fetchone()[0]
+        
+        cur.execute("SELECT COUNT(*) FROM demandes_credit")
+        total_demandes = cur.fetchone()[0]
+        
+        cur.close()
+        
+        stats = {
+            'total_clients': total_clients,
+            'total_admins': total_admins,
+            'total_demandes': total_demandes,
+            'total_users': total_clients + total_admins
+        }
+        
+        return render_template('admin_dashboard.html', 
+                             stats=stats,
+                             current_language=current_language,
+                             user_name=session.get('user_name', 'Admin'))
+    except Exception as e:
+        print(f"❌ Erreur dashboard admin: {e}")
+        return render_template('admin_dashboard.html', 
+                             stats={},
+                             error="Erreur lors du chargement des statistiques",
+                             current_language=current_language)
+
+# 👥 Gestion des utilisateurs (Admin)
+@app.route('/admin/users')
+@admin_required
+def admin_users():
+    current_language = session.get('language', 'fr')
+    
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT id, name, email, role FROM signup ORDER BY id DESC")
+        users = cur.fetchall()
+        cur.close()
+        
+        # Convertir en liste de dictionnaires pour faciliter l'utilisation dans le template
+        users_list = []
+        for user in users:
+            users_list.append({
+                'id': user[0],
+                'name': user[1],
+                'email': user[2],
+                'role': user[3]
+            })
+        
+        return render_template('admin_users.html',
+                             users=users_list,
+                             current_language=current_language,
+                             user_name=session.get('user_name', 'Admin'))
+    except Exception as e:
+        print(f"❌ Erreur liste utilisateurs: {e}")
+        return render_template('admin_users.html',
+                             users=[],
+                             error="Erreur lors du chargement des utilisateurs",
+                             current_language=current_language)
+
+# 🔄 Changer le rôle d'un utilisateur (Admin)
+@app.route('/admin/users/<int:user_id>/change_role', methods=['POST'])
+@admin_required
+def admin_change_role(user_id):
+    try:
+        new_role = request.form.get('role')
+        
+        if new_role not in ['client', 'admin']:
+            return jsonify({'success': False, 'message': 'Rôle invalide'}), 400
+        
+        # Ne pas permettre de modifier son propre rôle
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT email FROM signup WHERE id = %s", (user_id,))
+        user = cur.fetchone()
+        
+        if user and user[0] == session.get('user'):
+            return jsonify({'success': False, 'message': 'Vous ne pouvez pas modifier votre propre rôle'}), 400
+        
+        # Mettre à jour le rôle
+        cur.execute("UPDATE signup SET role = %s WHERE id = %s", (new_role, user_id))
+        mysql.connection.commit()
+        cur.close()
+        
+        return jsonify({'success': True, 'message': 'Rôle modifié avec succès'})
+    except Exception as e:
+        print(f"❌ Erreur changement rôle: {e}")
+        return jsonify({'success': False, 'message': 'Erreur lors du changement de rôle'}), 500
+
+# 🗑️ Supprimer un utilisateur (Admin)
+@app.route('/admin/users/<int:user_id>/delete', methods=['POST'])
+@admin_required
+def admin_delete_user(user_id):
+    try:
+        # Ne pas permettre de se supprimer soi-même
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT email FROM signup WHERE id = %s", (user_id,))
+        user = cur.fetchone()
+        
+        if user and user[0] == session.get('user'):
+            return jsonify({'success': False, 'message': 'Vous ne pouvez pas supprimer votre propre compte'}), 400
+        
+        # Supprimer l'utilisateur
+        cur.execute("DELETE FROM signup WHERE id = %s", (user_id,))
+        mysql.connection.commit()
+        cur.close()
+        
+        return jsonify({'success': True, 'message': 'Utilisateur supprimé avec succès'})
+    except Exception as e:
+        print(f"❌ Erreur suppression utilisateur: {e}")
+        return jsonify({'success': False, 'message': 'Erreur lors de la suppression'}), 500
+
+# �🔓 Déconnexion
 @app.route('/logout')
 def logout():
     session.pop('user', None)
+    session.pop('user_id', None)
+    session.pop('user_name', None)
+    session.pop('user_role', None)
     session.pop('cin_path', None)
     return redirect(url_for('login'))
 
